@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-fundo: #f1f5f9;
+  --color-texto: #0f172a;
+  --color-celula: #e2e8f0;
+  --color-celula-borda: #94a3b8;
+  --color-agua: #38bdf8;
+  --color-acerto: #dc2626;
+  --color-afundado: #7f1d1d;
+  --color-embarcacao: #334155;
+}

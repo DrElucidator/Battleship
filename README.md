@@ -123,3 +123,25 @@ A experiência deve ser utilizável tanto em computadores quanto em dispositivos
 - Inteligência artificial estratégica para o computador.
 - Contas de usuário, ranking ou chat.
 - Continuação de partidas após fechar a aplicação.
+
+## Desenvolvimento
+
+Requisitos: Node.js 26 ou superior e npm.
+
+```bash
+npm install     # instala as dependências
+npm start       # servidor de desenvolvimento em http://localhost:4200
+npm test        # testes unitários com Vitest
+npm run build   # build de produção em dist/
+```
+
+Qualidade de código:
+
+```bash
+npm run lint          # análise estática com ESLint
+npm run format        # formata os arquivos com Prettier
+npm run format:check  # apenas verifica a formatação
+```
+
+A aplicação usa Angular 22.2 com componentes standalone e sem Zone.js (zoneless),
+estilização com Tailwind CSS 4 e ícones Lucide.
