@@ -90,16 +90,8 @@
                       <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
                     } @else if (resultado) {
                       <svg lucideCrosshair class="size-3.5" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.PortaAvioes) {
-                      <svg lucidePlane class="size-3.5" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Encouracado) {
-                      <svg lucideLandmark class="size-3.5" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Cruzador) {
-                      <svg lucideNavigation class="size-3.5" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Submarino) {
-                      <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Destroyer) {
-                      <svg lucideBomb class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao) {
+                      <app-icone-embarcacao [tipo]="tipoEmbarcacao" tamanho="compacto" />
                     } @else {
                       {{ coordenada.paraTexto() }}
                     }

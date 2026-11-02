@@ -1,0 +1,51 @@
+@switch (tipo()) {
+  @case (tipos.PortaAvioes) {
+    <svg
+      lucidePlane
+      class="icone"
+      [class.icone--compacto]="tamanho() === 'compacto'"
+      aria-hidden="true"
+    ></svg>
+  }
+  @case (tipos.Encouracado) {
+    <svg
+      lucideShip
+      class="icone"
+      [class.icone--compacto]="tamanho() === 'compacto'"
+      aria-hidden="true"
+    ></svg>
+  }
+  @case (tipos.Cruzador) {
+    <svg
+      lucideNavigation
+      class="icone"
+      [class.icone--compacto]="tamanho() === 'compacto'"
+      aria-hidden="true"
+    ></svg>
+  }
+  @case (tipos.Submarino) {
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="icone"
+      [class.icone--compacto]="tamanho() === 'compacto'"
+      aria-hidden="true"
+    >
+      <path d="M3 14h18a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5Z"></path>
+      <path d="M11 14V9h4l2 2"></path>
+      <path d="M13 9V6h3"></path>
+      <path d="M7 16h.01M10 16h.01M13 16h.01"></path>
+    </svg>
+  }
+  @default {
+    <svg
+      lucideBomb
+      class="icone"
+      [class.icone--compacto]="tamanho() === 'compacto'"
+      aria-hidden="true"
+    ></svg>
+  }
+}

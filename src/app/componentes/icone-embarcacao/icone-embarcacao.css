@@ -1,0 +1,15 @@
+:host {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.icone {
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 1.9;
+}
+
+.icone--compacto {
+  width: 0.875rem;
+  height: 0.875rem;
+}

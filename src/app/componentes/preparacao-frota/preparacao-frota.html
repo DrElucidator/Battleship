@@ -51,16 +51,8 @@
                     "
                     (click)="posicionarEmbarcacao(coordenada)"
                   >
-                    @if (tipoEmbarcacao === tiposEmbarcacao.PortaAvioes) {
-                      <svg lucidePlane class="size-4" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Encouracado) {
-                      <svg lucideLandmark class="size-4" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Cruzador) {
-                      <svg lucideNavigation class="size-4" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Submarino) {
-                      <svg lucideWaves class="size-4" aria-hidden="true"></svg>
-                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Destroyer) {
-                      <svg lucideBomb class="size-4" aria-hidden="true"></svg>
+                    @if (tipoEmbarcacao) {
+                      <app-icone-embarcacao [tipo]="tipoEmbarcacao" />
                     } @else {
                       {{ coordenada.paraTexto() }}
                     }
@@ -94,17 +86,7 @@
                 <span
                   class="mr-2 inline-flex size-7 items-center justify-center rounded-md bg-embarcacao/12 text-embarcacao"
                 >
-                  @if (embarcacao.tipo === tiposEmbarcacao.PortaAvioes) {
-                    <svg lucidePlane class="size-4" aria-hidden="true"></svg>
-                  } @else if (embarcacao.tipo === tiposEmbarcacao.Encouracado) {
-                    <svg lucideLandmark class="size-4" aria-hidden="true"></svg>
-                  } @else if (embarcacao.tipo === tiposEmbarcacao.Cruzador) {
-                    <svg lucideNavigation class="size-4" aria-hidden="true"></svg>
-                  } @else if (embarcacao.tipo === tiposEmbarcacao.Submarino) {
-                    <svg lucideWaves class="size-4" aria-hidden="true"></svg>
-                  } @else {
-                    <svg lucideBomb class="size-4" aria-hidden="true"></svg>
-                  }
+                  <app-icone-embarcacao [tipo]="embarcacao.tipo" />
                 </span>
                 <span class="min-w-0">
                   <span class="block truncate font-medium">{{

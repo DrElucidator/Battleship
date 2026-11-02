@@ -10,18 +10,15 @@ import {
 import {
   LucideCircleX,
   LucideCrosshair,
-  LucideBomb,
-  LucideLandmark,
   LucideLoaderCircle,
   LucideMedal,
-  LucideNavigation,
-  LucidePlane,
   LucideRotateCcw,
   LucideShip,
   LucideSwords,
   LucideTrophy,
   LucideWaves,
 } from '@lucide/angular';
+import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Partida, ResultadoPartida, TurnoPartida } from '../../dominio/partida';
@@ -46,17 +43,14 @@ interface UltimaJogada {
   imports: [
     LucideCircleX,
     LucideCrosshair,
-    LucideBomb,
-    LucideLandmark,
     LucideLoaderCircle,
     LucideMedal,
-    LucideNavigation,
-    LucidePlane,
     LucideRotateCcw,
     LucideShip,
     LucideSwords,
     LucideTrophy,
     LucideWaves,
+    IconeEmbarcacaoComponent,
   ],
   selector: 'app-batalha',
   styleUrl: './batalha.css',
@@ -68,7 +62,6 @@ export class BatalhaComponent implements OnDestroy {
   readonly resultadoFinalizado = output<ResultadoPartida>();
   readonly novaPartidaSolicitada = output<void>();
   readonly turnos = TurnoPartida;
-  readonly tiposEmbarcacao = TipoEmbarcacao;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);

@@ -18,4 +18,23 @@ describe('App', () => {
     expect(elemento.querySelector('header svg')).toBeTruthy();
     expect(elemento.querySelector('main')).toBeTruthy();
   });
+
+  it('deve apresentar o jogo antes de exibir a preparação da frota', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const elemento = fixture.nativeElement as HTMLElement;
+    const botaoPreparacao = Array.from(elemento.querySelectorAll('button')).find((botao) =>
+      botao.textContent?.includes('Preparar minha frota'),
+    );
+
+    expect(elemento.querySelector('h2')?.textContent).toContain('Comande sua frota');
+    expect(botaoPreparacao).toBeTruthy();
+
+    botaoPreparacao?.click();
+    fixture.detectChanges();
+
+    expect(elemento.querySelector('h2')?.textContent).toContain('Posicione suas embarcações');
+  });
 });

@@ -1,13 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, output, signal } from '@angular/core';
-import {
-  LucideAnchor,
-  LucideBomb,
-  LucideLandmark,
-  LucideNavigation,
-  LucidePlane,
-  LucideRotateCw,
-  LucideWaves,
-} from '@lucide/angular';
+import { LucideAnchor, LucideRotateCw } from '@lucide/angular';
+import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Embarcacao } from '../../dominio/embarcacao';
 import { frotaOficial, TipoEmbarcacao } from '../../dominio/frota';
@@ -21,15 +14,7 @@ interface LinhaDoTabuleiro {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    LucideAnchor,
-    LucideBomb,
-    LucideLandmark,
-    LucideNavigation,
-    LucidePlane,
-    LucideRotateCw,
-    LucideWaves,
-  ],
+  imports: [LucideAnchor, LucideRotateCw, IconeEmbarcacaoComponent],
   selector: 'app-preparacao-frota',
   styleUrl: './preparacao-frota.css',
   templateUrl: './preparacao-frota.html',
@@ -41,7 +26,6 @@ export class PreparacaoFrotaComponent {
   readonly mensagem = signal('Selecione uma embarcação para começar.');
   readonly embarcacoesPosicionadas = signal<readonly Embarcacao[]>([]);
   readonly frota = frotaOficial;
-  readonly tiposEmbarcacao = TipoEmbarcacao;
   readonly orientacoes = Orientacao;
   private readonly tabuleiro = new Tabuleiro();
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);

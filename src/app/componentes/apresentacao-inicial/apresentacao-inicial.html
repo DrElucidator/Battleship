@@ -1,0 +1,38 @@
+<section class="apresentacao" aria-labelledby="titulo-apresentacao">
+  <div class="apresentacao__hero">
+    <div class="apresentacao__conteudo">
+      <h2 id="titulo-apresentacao">Comande sua frota. Domine o oceano.</h2>
+      <p class="apresentacao__descricao">
+        Posicione suas embarcações, descubra o tabuleiro adversário e destrua a frota inimiga antes
+        que o computador encontre a sua.
+      </p>
+
+      <button type="button" class="apresentacao__acao" (click)="iniciarPreparacao()">
+        Preparar minha frota
+        <svg lucideShip class="size-5" aria-hidden="true"></svg>
+      </button>
+    </div>
+
+    <div class="apresentacao__ilustracao" aria-hidden="true">
+      <img src="submarino.svg" alt="" />
+    </div>
+  </div>
+
+  <div class="apresentacao__regras" aria-label="Como jogar">
+    <article>
+      <svg lucideShip class="size-6" aria-hidden="true"></svg>
+      <h3>Posicione</h3>
+      <p>Organize cinco embarcações em um tabuleiro de 10 por 10.</p>
+    </article>
+    <article>
+      <svg lucideCrosshair class="size-6" aria-hidden="true"></svg>
+      <h3>Atire</h3>
+      <p>Escolha uma coordenada por turno e acompanhe água, acertos e navios afundados.</p>
+    </article>
+    <article>
+      <svg lucideTrophy class="size-6" aria-hidden="true"></svg>
+      <h3>Vença</h3>
+      <p>Destrua toda a frota adversária antes que o computador faça o mesmo.</p>
+    </article>
+  </div>
+</section>
