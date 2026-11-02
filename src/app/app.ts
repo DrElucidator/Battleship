@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { LucideShip } from '@lucide/angular';
+import { PreparacaoFrotaComponent } from './componentes/preparacao-frota/preparacao-frota';
 
 @Component({
-  imports: [LucideShip],
+  imports: [LucideShip, PreparacaoFrotaComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

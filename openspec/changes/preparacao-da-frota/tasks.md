@@ -2,9 +2,9 @@
 
 ## 1. Estrutura e estado da preparação
 
-- [ ] 1.1 Criar o componente de preparação e conectá-lo ao shell da aplicação.
-- [ ] 1.2 Modelar com Signals a embarcação selecionada, a orientação, a mensagem e a projeção das embarcações posicionadas.
-- [ ] 1.3 Criar testes unitários para o estado de preparação, sem depender do DOM quando possível.
+- [x] 1.1 Criar o componente de preparação e conectá-lo ao shell da aplicação.
+- [x] 1.2 Modelar com Signals a embarcação selecionada, a orientação, a mensagem e a projeção das embarcações posicionadas.
+- [x] 1.3 Criar testes unitários para o estado de preparação, sem depender do DOM quando possível.
 
 ## 2. Tabuleiro do jogador
 

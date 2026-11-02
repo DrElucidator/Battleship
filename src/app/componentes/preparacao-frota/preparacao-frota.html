@@ -1,0 +1,17 @@
+<section class="space-y-3" aria-labelledby="titulo-preparacao">
+  <p class="text-sm font-semibold tracking-wide text-agua">PREPARAÇÃO DA FROTA</p>
+  <h2 id="titulo-preparacao" class="text-3xl font-bold tracking-tight">
+    Posicione suas embarcações
+  </h2>
+  <p class="max-w-2xl text-texto/75">
+    Escolha uma embarcação, defina a orientação e selecione a coordenada inicial no tabuleiro.
+  </p>
+
+  <p class="text-sm text-texto/70" aria-live="polite">
+    {{ quantidadeDeEmbarcacoesRestantes() }} embarcações aguardando posicionamento.
+  </p>
+
+  <p class="rounded-lg border border-celula-borda bg-celula px-4 py-3 text-sm" role="status">
+    {{ mensagem() }}
+  </p>
+</section>
