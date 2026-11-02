@@ -5,6 +5,12 @@ import { TipoEmbarcacao } from './frota';
 
 const linhas: readonly LinhaTabuleiro[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
+export interface EstadoEmbarcacao {
+  readonly tipo: TipoEmbarcacao;
+  readonly posicoesAtingidas: readonly Coordenada[];
+  readonly afundada: boolean;
+}
+
 export class Tabuleiro {
   readonly quantidadeDeLinhas = linhas.length;
   readonly quantidadeDeColunas = 10;
@@ -52,7 +58,13 @@ export class Tabuleiro {
       ? this.obterResultadoDoAcerto(embarcacaoAtingida, coordenada)
       : ResultadoAtaque.Agua;
 
-    this.ataques.push({ coordenada, resultado });
+    this.ataques.push({
+      coordenada,
+      resultado,
+      embarcacaoAtingida: embarcacaoAtingida?.tipo,
+      embarcacaoAfundada:
+        resultado === ResultadoAtaque.EmbarcacaoDestruida ? embarcacaoAtingida?.tipo : undefined,
+    });
 
     return resultado;
   }
@@ -75,18 +87,27 @@ export class Tabuleiro {
     );
   }
 
-  obterCoordenadasAtingidasPorEmbarcacaoNaoDestruida(): readonly (readonly Coordenada[])[] {
-    return this.embarcacoes.flatMap((embarcacao) => {
-      const posicoesDaEmbarcacao = new Set(
-        embarcacao.posicoes.map((posicao) => posicao.paraTexto()),
-      );
-      const posicoesAtingidas = this.ataques
-        .map((ataque) => ataque.coordenada)
-        .filter((coordenada) => posicoesDaEmbarcacao.has(coordenada.paraTexto()));
+  estaEmbarcacaoAfundada(tipo: TipoEmbarcacao): boolean {
+    return this.obterEstadosEmbarcacoes().some(
+      (estado) => estado.tipo === tipo && estado.afundada,
+    );
+  }
 
-      return posicoesAtingidas.length > 0 && posicoesAtingidas.length < embarcacao.posicoes.length
-        ? [posicoesAtingidas]
-        : [];
+  obterEstadosEmbarcacoes(): readonly EstadoEmbarcacao[] {
+    const coordenadasAtacadas = new Set(
+      this.ataques.map((ataque) => ataque.coordenada.paraTexto()),
+    );
+
+    return this.embarcacoes.map((embarcacao) => {
+      const posicoesAtingidas = embarcacao.posicoes.filter((posicao) =>
+        coordenadasAtacadas.has(posicao.paraTexto()),
+      );
+
+      return {
+        tipo: embarcacao.tipo,
+        posicoesAtingidas,
+        afundada: posicoesAtingidas.length === embarcacao.posicoes.length,
+      };
     });
   }
 

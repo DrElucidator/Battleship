@@ -1,6 +1,7 @@
 import { ResultadoAtaque } from './ataque';
 import { Coordenada } from './coordenada';
 import { GeradorAleatorio } from './fabrica-frota-computador';
+import { TipoEmbarcacao } from './frota';
 import { EstrategiaAtaqueComputador } from './estrategia-ataque-computador';
 import { Tabuleiro } from './tabuleiro';
 
@@ -19,6 +20,8 @@ export interface Jogada {
   readonly atacante: TurnoPartida;
   readonly coordenada: Coordenada;
   readonly resultado: ResultadoAtaque;
+  readonly embarcacaoAtingida?: TipoEmbarcacao;
+  readonly embarcacaoAfundada?: TipoEmbarcacao;
 }
 
 export class Partida {
@@ -56,7 +59,14 @@ export class Partida {
       geradorAleatorio,
     );
 
-    return this.executarAtaque(TurnoPartida.Computador, this.tabuleiroJogador, coordenada);
+    const jogada = this.executarAtaque(TurnoPartida.Computador, this.tabuleiroJogador, coordenada);
+    this.estrategiaAtaqueComputador.registrarResultado(
+      jogada.coordenada,
+      jogada.resultado,
+      jogada.embarcacaoAtingida,
+    );
+
+    return jogada;
   }
 
   obterJogadas(): readonly Jogada[] {
@@ -69,7 +79,14 @@ export class Partida {
     coordenada: Coordenada,
   ): Jogada {
     const resultado = tabuleiroDefensor.atacar(coordenada);
-    const jogada = { atacante, coordenada, resultado };
+    const ataque = tabuleiroDefensor.obterAtaques().at(-1);
+    const jogada = {
+      atacante,
+      coordenada,
+      resultado,
+      embarcacaoAtingida: ataque?.embarcacaoAtingida,
+      embarcacaoAfundada: ataque?.embarcacaoAfundada,
+    };
     this.jogadas.push(jogada);
 
     if (tabuleiroDefensor.todasEmbarcacoesForamDestruidas()) {
@@ -80,10 +97,8 @@ export class Partida {
       return jogada;
     }
 
-    if (resultado === ResultadoAtaque.Agua) {
-      this.turno =
-        atacante === TurnoPartida.Jogador ? TurnoPartida.Computador : TurnoPartida.Jogador;
-    }
+    this.turno =
+      atacante === TurnoPartida.Jogador ? TurnoPartida.Computador : TurnoPartida.Jogador;
 
     return jogada;
   }

@@ -16,15 +16,15 @@ A criação da frota do computador recebe uma função de aleatoriedade opcional
 
 ### 3. Turno explícito e ataque protegido
 
-O jogador ataca somente durante seu turno. Após uma tentativa válida, o turno passa ao computador, que escolhe uma coordenada ainda não atacada. Quando a partida termina, nenhum novo ataque é aceito.
+O jogador ataca somente durante seu turno. Após cada disparo válido, independentemente de água ou acerto, o turno passa ao outro participante. Quando a partida termina, nenhum novo ataque é aceito.
 
 ### 4. Informação assimétrica na interface
 
 O tabuleiro do jogador mostra sua frota. O tabuleiro adversário mostra apenas o resultado dos ataques efetuados. Células inimigas intactas não revelam embarcação.
 
-### 5. Computador simples e confiável nesta etapa
+### 5. Computador com alvo persistente
 
-O computador escolhe aleatoriamente entre coordenadas ainda disponíveis. Estratégia de perseguição após acerto é uma melhoria futura, pois não muda as regras fundamentais da partida.
+O computador escolhe aleatoriamente apenas enquanto não houver alvo. Depois de acertar, preserva esse alvo entre turnos, explora posições vizinhas e segue a linha ou coluna confirmada. Ao afundar a embarcação, recebe o tipo anunciado e encerra apenas esse alvo.
 
 ## Riscos e trade-offs
 

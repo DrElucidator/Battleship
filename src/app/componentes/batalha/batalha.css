@@ -3,30 +3,40 @@
 }
 
 .tabuleiro {
+  width: 100%;
   border-collapse: separate;
-  border-spacing: 0.2rem;
+  border-spacing: clamp(0.08rem, 0.25vw, 0.25rem);
+  table-layout: fixed;
 }
 
 .tabuleiro th {
-  width: 1.75rem;
-  height: 1.75rem;
+  height: clamp(1.35rem, 3.2vw, 2.1rem);
   color: color-mix(in srgb, var(--color-texto) 70%, transparent);
-  font-size: 0.7rem;
+  font-size: clamp(0.58rem, 1.15vw, 0.7rem);
   font-weight: 600;
   text-align: center;
 }
 
+.tabuleiro th:first-child {
+  width: clamp(1.2rem, 3vw, 2.1rem);
+}
+
+.tabuleiro td {
+  padding: 0;
+}
+
 .celula-batalha {
   display: flex;
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 100%;
+  min-height: clamp(1.45rem, 3.5vw, 2.1rem);
+  aspect-ratio: 1;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--color-celula-borda);
   border-radius: 0.35rem;
   background-color: var(--color-fundo);
   color: var(--color-texto);
-  font-size: 0.65rem;
+  font-size: clamp(0.5rem, 1.1vw, 0.7rem);
   font-weight: 500;
   transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
 }
@@ -158,23 +168,6 @@ button.celula-batalha:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .painel-resultado {
     animation: none;
-  }
-}
-
-@media (min-width: 640px) {
-  .tabuleiro {
-    border-spacing: 0.25rem;
-  }
-
-  .tabuleiro th {
-    width: 2.1rem;
-    height: 2.1rem;
-  }
-
-  .celula-batalha {
-    width: 2.1rem;
-    height: 2.1rem;
-    font-size: 0.7rem;
   }
 }
 

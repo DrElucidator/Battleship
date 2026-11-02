@@ -14,6 +14,7 @@ import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Partida, ResultadoPartida, TurnoPartida } from '../../dominio/partida';
 import { Pontuacao } from '../../dominio/placar';
 import { Tabuleiro } from '../../dominio/tabuleiro';
+import { TipoEmbarcacao } from '../../dominio/frota';
 
 interface LinhaDoTabuleiro {
   readonly rotulo: LinhaTabuleiro;
@@ -75,7 +76,7 @@ export class BatalhaComponent {
     try {
       const jogadaJogador = this.partida().atacarComputador(coordenada);
       this.mensagem.set(
-        `Você atacou ${coordenada.paraTexto()}: ${this.obterDescricaoResultado(jogadaJogador.resultado)}.`,
+        `Você atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
       );
       this.atualizarEstado();
 
@@ -85,14 +86,7 @@ export class BatalhaComponent {
         return;
       }
 
-      if (this.partida().turnoAtual === TurnoPartida.Jogador) {
-        this.mensagem.set(
-          `Você acertou em ${coordenada.paraTexto()}. Jogue novamente para continuar o ataque.`,
-        );
-        return;
-      }
-
-      this.resolverTurnoComputador(coordenada);
+      this.resolverTurnoComputador(coordenada, this.obterDescricaoJogada(jogadaJogador));
     } catch (erro) {
       this.mensagem.set(erro instanceof Error ? erro.message : 'Não foi possível executar o ataque.');
     }
@@ -127,6 +121,14 @@ export class BatalhaComponent {
     return descricoes[resultado];
   }
 
+  obterDescricaoJogada(jogada: { resultado: ResultadoAtaque; embarcacaoAfundada?: TipoEmbarcacao }): string {
+    const descricao = this.obterDescricaoResultado(jogada.resultado);
+
+    return jogada.embarcacaoAfundada
+      ? `${descricao}. ${this.obterNomeEmbarcacao(jogada.embarcacaoAfundada)} afundado`
+      : descricao;
+  }
+
   solicitarNovaPartida(): void {
     this.novaPartidaSolicitada.emit();
   }
@@ -135,7 +137,10 @@ export class BatalhaComponent {
     this.revisao.update((valor) => valor + 1);
   }
 
-  private resolverTurnoComputador(coordenadaJogador: Coordenada): void {
+  private resolverTurnoComputador(
+    coordenadaJogador: Coordenada,
+    descricaoJogadaJogador: string,
+  ): void {
     const jogadasComputador = [];
 
     while (
@@ -153,11 +158,23 @@ export class BatalhaComponent {
     }
 
     const ataques = jogadasComputador
-      .map((jogada) => `${jogada.coordenada.paraTexto()} (${this.obterDescricaoResultado(jogada.resultado)})`)
+      .map((jogada) => `${jogada.coordenada.paraTexto()} (${this.obterDescricaoJogada(jogada)})`)
       .join(', ');
     this.mensagem.set(
-      `Você atacou ${coordenadaJogador.paraTexto()}. O computador respondeu em ${ataques}.`,
+      `Você atacou ${coordenadaJogador.paraTexto()}: ${descricaoJogadaJogador}. O computador respondeu em ${ataques}.`,
     );
+  }
+
+  private obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
+    const nomes: Record<TipoEmbarcacao, string> = {
+      [TipoEmbarcacao.PortaAvioes]: 'Porta-aviões',
+      [TipoEmbarcacao.Encouracado]: 'Encouraçado',
+      [TipoEmbarcacao.Cruzador]: 'Cruzador',
+      [TipoEmbarcacao.Submarino]: 'Submarino',
+      [TipoEmbarcacao.Destroyer]: 'Destroyer',
+    };
+
+    return nomes[tipo];
   }
 
   private calcularResumo(atacante: TurnoPartida): {

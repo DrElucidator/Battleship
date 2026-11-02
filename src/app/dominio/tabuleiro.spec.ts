@@ -70,6 +70,7 @@ describe('Tabuleiro', () => {
     );
 
     tabuleiro.posicionarEmbarcacao(cruzador);
+
     tabuleiro.posicionarEmbarcacao(destroyerAdjacente);
 
     expect(tabuleiro.obterEmbarcacoes()).toEqual([cruzador, destroyerAdjacente]);
@@ -132,6 +133,27 @@ describe('Tabuleiro', () => {
     const resultado = tabuleiro.atacar(new Coordenada('B', 3));
 
     expect(resultado).toBe(ResultadoAtaque.EmbarcacaoDestruida);
+    expect(tabuleiro.obterAtaques().at(-1)?.embarcacaoAfundada).toBe(TipoEmbarcacao.Destroyer);
+    expect(tabuleiro.estaEmbarcacaoAfundada(TipoEmbarcacao.Destroyer)).toBe(true);
+  });
+
+  it('deve manter o estado de acertos e afundamento de cada embarcação', () => {
+    const tabuleiro = new Tabuleiro();
+    const cruzador = new Embarcacao(
+      TipoEmbarcacao.Cruzador,
+      new Coordenada('B', 2),
+      Orientacao.Horizontal,
+    );
+    tabuleiro.posicionarEmbarcacao(cruzador);
+    tabuleiro.atacar(new Coordenada('B', 2));
+
+    expect(tabuleiro.obterEstadosEmbarcacoes()).toEqual([
+      {
+        tipo: TipoEmbarcacao.Cruzador,
+        posicoesAtingidas: [new Coordenada('B', 2)],
+        afundada: false,
+      },
+    ]);
   });
 
   it('deve rejeitar ataque repetido e preservar o histórico', () => {

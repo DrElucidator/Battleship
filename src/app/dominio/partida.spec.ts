@@ -16,12 +16,12 @@ describe('Partida', () => {
     expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
   });
 
-  it('deve manter o turno do jogador após um acerto', () => {
+  it('deve alternar o turno do jogador após um acerto', () => {
     const partida = criarPartida();
 
     partida.atacarComputador(new Coordenada('B', 1));
 
-    expect(partida.turnoAtual).toBe(TurnoPartida.Jogador);
+    expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
   });
 
   it('deve impedir o jogador de atacar fora do seu turno', () => {
@@ -29,7 +29,7 @@ describe('Partida', () => {
     partida.atacarComputador(new Coordenada('J', 10));
 
     expect(() => partida.atacarComputador(new Coordenada('J', 9))).toThrow(
-      'Não é o turno de computador.',
+      'Não é o turno de jogador.',
     );
   });
 
@@ -41,7 +41,7 @@ describe('Partida', () => {
 
     expect(jogada.atacante).toBe(TurnoPartida.Computador);
     expect(jogada.coordenada.paraTexto()).toBe('A1');
-    expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
+    expect(partida.turnoAtual).toBe(TurnoPartida.Jogador);
   });
 
   it('deve declarar vitória do jogador ao destruir toda a frota adversária', () => {
@@ -50,11 +50,24 @@ describe('Partida', () => {
     const partida = new Partida(tabuleiroJogador, tabuleiroComputador);
 
     partida.atacarComputador(new Coordenada('B', 1));
+    partida.atacarJogador(() => 0.5);
     partida.atacarComputador(new Coordenada('B', 2));
 
     expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogador);
     expect(partida.encerrada).toBe(true);
     expect(() => partida.atacarJogador()).toThrow('A partida já foi encerrada.');
+  });
+
+  it('deve informar a embarcação afundada na jogada final', () => {
+    const tabuleiroJogador = criarTabuleiroComDestroyer('A', 1);
+    const tabuleiroComputador = criarTabuleiroComDestroyer('B', 1);
+    const partida = new Partida(tabuleiroJogador, tabuleiroComputador);
+
+    partida.atacarComputador(new Coordenada('B', 1));
+    partida.atacarJogador(() => 0.5);
+    const jogadaFinal = partida.atacarComputador(new Coordenada('B', 2));
+
+    expect(jogadaFinal.embarcacaoAfundada).toBe(TipoEmbarcacao.Destroyer);
   });
 
   it('deve declarar derrota do jogador ao destruir toda a sua frota', () => {
@@ -64,6 +77,7 @@ describe('Partida', () => {
 
     partida.atacarComputador(new Coordenada('J', 10));
     partida.atacarJogador(() => 0);
+    partida.atacarComputador(new Coordenada('J', 9));
     partida.atacarJogador(() => 0);
 
     expect(partida.resultado).toBe(ResultadoPartida.VitoriaComputador);

@@ -1,11 +1,13 @@
+import { TestBed } from '@angular/core/testing';
 import { PreparacaoFrotaComponent } from './preparacao-frota';
 import { TipoEmbarcacao } from '../../dominio/frota';
 import { Orientacao } from '../../dominio/orientacao';
 import { Coordenada } from '../../dominio/coordenada';
+import { Tabuleiro } from '../../dominio/tabuleiro';
 
 describe('PreparacaoFrotaComponent', () => {
   it('deve iniciar sem embarcação selecionada e com as cinco embarcações restantes', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
 
     expect(componente.embarcacaoSelecionada()).toBeNull();
     expect(componente.orientacao()).toBe(Orientacao.Horizontal);
@@ -13,7 +15,7 @@ describe('PreparacaoFrotaComponent', () => {
   });
 
   it('deve selecionar uma embarcação e orientar o próximo posicionamento', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
 
     componente.selecionarEmbarcacao(TipoEmbarcacao.Cruzador);
     componente.selecionarOrientacao(Orientacao.Vertical);
@@ -24,7 +26,7 @@ describe('PreparacaoFrotaComponent', () => {
   });
 
   it('deve disponibilizar as 100 coordenadas do tabuleiro em dez linhas', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
 
     expect(componente.linhasDoTabuleiro).toHaveLength(10);
     expect(componente.colunas).toHaveLength(10);
@@ -33,7 +35,7 @@ describe('PreparacaoFrotaComponent', () => {
   });
 
   it('deve posicionar a embarcação selecionada e atualizar sua projeção', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
     componente.selecionarEmbarcacao(TipoEmbarcacao.Cruzador);
 
     componente.posicionarEmbarcacao(new Coordenada('B', 2));
@@ -46,7 +48,7 @@ describe('PreparacaoFrotaComponent', () => {
   });
 
   it('deve manter o posicionamento existente quando houver sobreposição', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
     componente.selecionarEmbarcacao(TipoEmbarcacao.Cruzador);
     componente.posicionarEmbarcacao(new Coordenada('B', 2));
     componente.selecionarEmbarcacao(TipoEmbarcacao.Destroyer);
@@ -58,7 +60,7 @@ describe('PreparacaoFrotaComponent', () => {
   });
 
   it('deve remover uma embarcação para permitir seu reposicionamento', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
     componente.selecionarEmbarcacao(TipoEmbarcacao.Cruzador);
     componente.posicionarEmbarcacao(new Coordenada('B', 2));
 
@@ -72,7 +74,11 @@ describe('PreparacaoFrotaComponent', () => {
   });
 
   it('deve permitir iniciar a batalha somente depois de posicionar toda a frota', () => {
-    const componente = new PreparacaoFrotaComponent();
+    const componente = criarComponente();
+    let tabuleiroIniciado: Tabuleiro | undefined;
+    componente.batalhaIniciada.subscribe((tabuleiro) => {
+      tabuleiroIniciado = tabuleiro;
+    });
     const posicionamentos = [
       [TipoEmbarcacao.PortaAvioes, new Coordenada('A', 1)],
       [TipoEmbarcacao.Encouracado, new Coordenada('B', 1)],
@@ -93,6 +99,10 @@ describe('PreparacaoFrotaComponent', () => {
 
     expect(componente.frotaEstaCompleta()).toBe(true);
     expect(componente.quantidadeDeEmbarcacoesRestantes()).toBe(0);
-    expect(componente.mensagem()).toBe('Frota pronta. A batalha será iniciada na próxima fase.');
+    expect(tabuleiroIniciado?.obterEmbarcacoes()).toHaveLength(5);
   });
 });
+
+function criarComponente(): PreparacaoFrotaComponent {
+  return TestBed.runInInjectionContext(() => new PreparacaoFrotaComponent());
+}
