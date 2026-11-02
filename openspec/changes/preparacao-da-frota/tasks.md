@@ -8,7 +8,7 @@
 
 ## 2. Tabuleiro do jogador
 
-- [ ] 2.1 Renderizar o grid 10 x 10 com rótulos de linha e coluna.
+- [x] 2.1 Renderizar o grid 10 x 10 com rótulos de linha e coluna.
 - [ ] 2.2 Exibir embarcações posicionadas e tornar cada célula acessível por teclado e leitor de tela.
 - [ ] 2.3 Posicionar a embarcação selecionada ao escolher sua coordenada de origem.
 - [ ] 2.4 Exibir falha de validação sem alterar o posicionamento válido já existente.

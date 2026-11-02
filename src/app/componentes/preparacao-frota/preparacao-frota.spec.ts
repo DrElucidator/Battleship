@@ -21,4 +21,13 @@ describe('PreparacaoFrotaComponent', () => {
     expect(componente.orientacao()).toBe(Orientacao.Vertical);
     expect(componente.mensagem()).toBe('Escolha a coordenada inicial no tabuleiro.');
   });
+
+  it('deve disponibilizar as 100 coordenadas do tabuleiro em dez linhas', () => {
+    const componente = new PreparacaoFrotaComponent();
+
+    expect(componente.linhasDoTabuleiro).toHaveLength(10);
+    expect(componente.colunas).toHaveLength(10);
+    expect(componente.linhasDoTabuleiro[0]?.coordenadas[0]?.paraTexto()).toBe('A1');
+    expect(componente.linhasDoTabuleiro.at(-1)?.coordenadas.at(-1)?.paraTexto()).toBe('J10');
+  });
 });
