@@ -38,7 +38,10 @@
   color: var(--color-texto);
   font-size: clamp(0.5rem, 1.1vw, 0.7rem);
   font-weight: 500;
-  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
 }
 
 button.celula-batalha:not(:disabled):hover {
@@ -78,6 +81,14 @@ button.celula-batalha:focus-visible {
   border-color: var(--color-afundado);
   background-color: var(--color-afundado);
   color: white;
+}
+
+.celula-batalha--recente {
+  animation: ataque-revelado 620ms ease-out both;
+}
+
+.indicador-processamento {
+  animation: rotacao 850ms linear infinite;
 }
 
 .painel-resultado {
@@ -165,8 +176,32 @@ button.celula-batalha:focus-visible {
   }
 }
 
+@keyframes ataque-revelado {
+  0% {
+    transform: scale(0.78);
+    filter: brightness(1.7);
+  }
+
+  60% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes rotacao {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .painel-resultado {
+  .painel-resultado,
+  .celula-batalha--recente,
+  .indicador-processamento {
     animation: none;
   }
 }

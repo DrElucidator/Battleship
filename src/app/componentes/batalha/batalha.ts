@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  computed,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import {
   LucideCircleX,
   LucideCrosshair,
+  LucideLoaderCircle,
   LucideMedal,
   LucideRotateCcw,
   LucideShip,
@@ -21,11 +30,19 @@ interface LinhaDoTabuleiro {
   readonly coordenadas: readonly Coordenada[];
 }
 
+type TabuleiroAtacado = 'jogador' | 'computador';
+
+interface UltimaJogada {
+  readonly tabuleiroAtacado: TabuleiroAtacado;
+  readonly coordenada: Coordenada;
+}
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LucideCircleX,
     LucideCrosshair,
+    LucideLoaderCircle,
     LucideMedal,
     LucideRotateCcw,
     LucideShip,
@@ -37,7 +54,7 @@ interface LinhaDoTabuleiro {
   styleUrl: './batalha.css',
   templateUrl: './batalha.html',
 })
-export class BatalhaComponent {
+export class BatalhaComponent implements OnDestroy {
   readonly partida = input.required<Partida>();
   readonly pontuacao = input.required<Pontuacao>();
   readonly resultadoFinalizado = output<ResultadoPartida>();
@@ -45,8 +62,12 @@ export class BatalhaComponent {
   readonly turnos = TurnoPartida;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
+  readonly processamentoComputador = signal(false);
+  readonly ultimaJogada = signal<UltimaJogada | null>(null);
   private readonly revisao = signal(0);
+  private readonly duracaoProcessamentoComputador = 1_000;
   private resultadoFoiComunicado = false;
+  private temporizadorComputador: ReturnType<typeof setTimeout> | undefined;
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
   readonly linhasDoTabuleiro = this.organizarLinhasDoTabuleiro();
   readonly turnoAtual = computed(() => {
@@ -75,6 +96,7 @@ export class BatalhaComponent {
 
     try {
       const jogadaJogador = this.partida().atacarComputador(coordenada);
+      this.registrarUltimaJogada('computador', coordenada);
       this.mensagem.set(
         `Você atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
       );
@@ -86,15 +108,18 @@ export class BatalhaComponent {
         return;
       }
 
-      this.resolverTurnoComputador(coordenada, this.obterDescricaoJogada(jogadaJogador));
+      this.agendarTurnoComputador(coordenada, this.obterDescricaoJogada(jogadaJogador));
     } catch (erro) {
-      this.mensagem.set(erro instanceof Error ? erro.message : 'Não foi possível executar o ataque.');
+      this.mensagem.set(
+        erro instanceof Error ? erro.message : 'Não foi possível executar o ataque.',
+      );
     }
   }
 
   podeAtacarComputador(coordenada: Coordenada): boolean {
     return (
       !this.partida().encerrada &&
+      !this.processamentoComputador() &&
       this.turnoAtual() === TurnoPartida.Jogador &&
       !this.obterResultadoAtaque(this.partida().tabuleiroComputador, coordenada)
     );
@@ -121,7 +146,10 @@ export class BatalhaComponent {
     return descricoes[resultado];
   }
 
-  obterDescricaoJogada(jogada: { resultado: ResultadoAtaque; embarcacaoAfundada?: TipoEmbarcacao }): string {
+  obterDescricaoJogada(jogada: {
+    resultado: ResultadoAtaque;
+    embarcacaoAfundada?: TipoEmbarcacao;
+  }): string {
     const descricao = this.obterDescricaoResultado(jogada.resultado);
 
     return jogada.embarcacaoAfundada
@@ -133,8 +161,39 @@ export class BatalhaComponent {
     this.novaPartidaSolicitada.emit();
   }
 
+  foiUltimaJogada(tabuleiroAtacado: TabuleiroAtacado, coordenada: Coordenada): boolean {
+    const ultimaJogada = this.ultimaJogada();
+
+    return (
+      ultimaJogada?.tabuleiroAtacado === tabuleiroAtacado &&
+      ultimaJogada.coordenada.paraTexto() === coordenada.paraTexto()
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (this.temporizadorComputador) {
+      clearTimeout(this.temporizadorComputador);
+    }
+  }
+
   private atualizarEstado(): void {
     this.revisao.update((valor) => valor + 1);
+  }
+
+  private registrarUltimaJogada(tabuleiroAtacado: TabuleiroAtacado, coordenada: Coordenada): void {
+    this.ultimaJogada.set({ tabuleiroAtacado, coordenada });
+  }
+
+  private agendarTurnoComputador(
+    coordenadaJogador: Coordenada,
+    descricaoJogadaJogador: string,
+  ): void {
+    this.processamentoComputador.set(true);
+    this.mensagem.set('O computador está escolhendo uma coordenada.');
+    this.temporizadorComputador = setTimeout(() => {
+      this.processamentoComputador.set(false);
+      this.resolverTurnoComputador(coordenadaJogador, descricaoJogadaJogador);
+    }, this.duracaoProcessamentoComputador);
   }
 
   private resolverTurnoComputador(
@@ -143,10 +202,7 @@ export class BatalhaComponent {
   ): void {
     const jogadasComputador = [];
 
-    while (
-      this.partida().turnoAtual === TurnoPartida.Computador &&
-      !this.partida().encerrada
-    ) {
+    while (this.partida().turnoAtual === TurnoPartida.Computador && !this.partida().encerrada) {
       jogadasComputador.push(this.partida().atacarJogador());
       this.atualizarEstado();
     }
@@ -160,6 +216,12 @@ export class BatalhaComponent {
     const ataques = jogadasComputador
       .map((jogada) => `${jogada.coordenada.paraTexto()} (${this.obterDescricaoJogada(jogada)})`)
       .join(', ');
+    const ultimaJogadaComputador = jogadasComputador.at(-1);
+
+    if (ultimaJogadaComputador) {
+      this.registrarUltimaJogada('jogador', ultimaJogadaComputador.coordenada);
+    }
+
     this.mensagem.set(
       `Você atacou ${coordenadaJogador.paraTexto()}: ${descricaoJogadaJogador}. O computador respondeu em ${ataques}.`,
     );
@@ -184,14 +246,17 @@ export class BatalhaComponent {
     destruidas: number;
   } {
     this.revisao();
-    const jogadas = this.partida().obterJogadas().filter((jogada) => jogada.atacante === atacante);
+    const jogadas = this.partida()
+      .obterJogadas()
+      .filter((jogada) => jogada.atacante === atacante);
 
     return {
       ataques: jogadas.length,
       agua: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Agua).length,
       acertos: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Acerto).length,
-      destruidas: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.EmbarcacaoDestruida)
-        .length,
+      destruidas: jogadas.filter(
+        (jogada) => jogada.resultado === ResultadoAtaque.EmbarcacaoDestruida,
+      ).length,
     };
   }
 

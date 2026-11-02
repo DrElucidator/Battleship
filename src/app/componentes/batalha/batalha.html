@@ -12,7 +12,14 @@
         aria-live="polite"
       >
         <svg lucideSwords class="size-4 text-embarcacao" aria-hidden="true"></svg>
-        @if (turnoAtual() === turnos.Jogador) {
+        @if (processamentoComputador()) {
+          <svg
+            lucideLoaderCircle
+            class="indicador-processamento size-4 text-agua"
+            aria-hidden="true"
+          ></svg>
+          Computador analisando
+        } @else if (turnoAtual() === turnos.Jogador) {
           Seu turno
         } @else {
           Turno do computador
@@ -20,7 +27,10 @@
       </p>
     </div>
 
-    <dl class="grid max-w-md grid-cols-2 overflow-hidden rounded-xl border border-celula-borda bg-celula text-center" aria-label="Placar da sessão">
+    <dl
+      class="grid max-w-md grid-cols-2 overflow-hidden rounded-xl border border-celula-borda bg-celula text-center"
+      aria-label="Placar da sessão"
+    >
       <div class="border-r border-celula-borda px-4 py-3">
         <dt class="text-xs font-semibold tracking-wide text-texto/65">VOCÊ</dt>
         <dd class="mt-1 text-2xl font-bold text-agua">{{ pontuacao().jogador }}</dd>
@@ -37,7 +47,10 @@
   </p>
 
   <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_11rem_minmax(0,1fr)]">
-    <section class="grid place-items-center rounded-xl border border-celula-borda bg-celula p-3" aria-labelledby="titulo-seu-tabuleiro">
+    <section
+      class="grid place-items-center rounded-xl border border-celula-borda bg-celula p-3"
+      aria-labelledby="titulo-seu-tabuleiro"
+    >
       <div class="mb-3 flex w-full items-center gap-2">
         <svg lucideShip class="size-5 text-embarcacao" aria-hidden="true"></svg>
         <h3 id="titulo-seu-tabuleiro" class="font-semibold">Sua frota</h3>
@@ -61,10 +74,15 @@
                 <td>
                   <span
                     class="celula-batalha"
-                    [class.celula-batalha--embarcacao]="possuiEmbarcacaoJogador(coordenada) && !resultado"
+                    [class.celula-batalha--embarcacao]="
+                      possuiEmbarcacaoJogador(coordenada) && !resultado
+                    "
                     [class.celula-batalha--agua]="resultado === resultadosAtaque.Agua"
                     [class.celula-batalha--acerto]="resultado === resultadosAtaque.Acerto"
-                    [class.celula-batalha--destruida]="resultado === resultadosAtaque.EmbarcacaoDestruida"
+                    [class.celula-batalha--destruida]="
+                      resultado === resultadosAtaque.EmbarcacaoDestruida
+                    "
+                    [class.celula-batalha--recente]="foiUltimaJogada('jogador', coordenada)"
                     [attr.aria-label]="'Sua coordenada ' + coordenada.paraTexto()"
                   >
                     @if (resultado === resultadosAtaque.Agua) {
@@ -94,25 +112,52 @@
       <section class="resumo-batalha__grupo" aria-labelledby="titulo-resumo-jogador">
         <h4 id="titulo-resumo-jogador">Você</h4>
         <dl>
-          <div><dt>Ataques</dt><dd>{{ resumoJogador().ataques }}</dd></div>
-          <div><dt>Água</dt><dd>{{ resumoJogador().agua }}</dd></div>
-          <div><dt>Acertos</dt><dd>{{ resumoJogador().acertos }}</dd></div>
-          <div><dt>Destruídas</dt><dd>{{ resumoJogador().destruidas }}</dd></div>
+          <div>
+            <dt>Ataques</dt>
+            <dd>{{ resumoJogador().ataques }}</dd>
+          </div>
+          <div>
+            <dt>Água</dt>
+            <dd>{{ resumoJogador().agua }}</dd>
+          </div>
+          <div>
+            <dt>Acertos</dt>
+            <dd>{{ resumoJogador().acertos }}</dd>
+          </div>
+          <div>
+            <dt>Destruídas</dt>
+            <dd>{{ resumoJogador().destruidas }}</dd>
+          </div>
         </dl>
       </section>
 
       <section class="resumo-batalha__grupo" aria-labelledby="titulo-resumo-computador">
         <h4 id="titulo-resumo-computador">Computador</h4>
         <dl>
-          <div><dt>Ataques</dt><dd>{{ resumoComputador().ataques }}</dd></div>
-          <div><dt>Água</dt><dd>{{ resumoComputador().agua }}</dd></div>
-          <div><dt>Acertos</dt><dd>{{ resumoComputador().acertos }}</dd></div>
-          <div><dt>Destruídas</dt><dd>{{ resumoComputador().destruidas }}</dd></div>
+          <div>
+            <dt>Ataques</dt>
+            <dd>{{ resumoComputador().ataques }}</dd>
+          </div>
+          <div>
+            <dt>Água</dt>
+            <dd>{{ resumoComputador().agua }}</dd>
+          </div>
+          <div>
+            <dt>Acertos</dt>
+            <dd>{{ resumoComputador().acertos }}</dd>
+          </div>
+          <div>
+            <dt>Destruídas</dt>
+            <dd>{{ resumoComputador().destruidas }}</dd>
+          </div>
         </dl>
       </section>
     </aside>
 
-    <section class="grid place-items-center rounded-xl border border-celula-borda bg-celula p-3" aria-labelledby="titulo-tabuleiro-computador">
+    <section
+      class="grid place-items-center rounded-xl border border-celula-borda bg-celula p-3"
+      aria-labelledby="titulo-tabuleiro-computador"
+    >
       <div class="mb-3 flex w-full items-center gap-2">
         <svg lucideCrosshair class="size-5 text-agua" aria-hidden="true"></svg>
         <h3 id="titulo-tabuleiro-computador" class="font-semibold">Tabuleiro adversário</h3>
@@ -139,7 +184,10 @@
                     class="celula-batalha"
                     [class.celula-batalha--agua]="resultado === resultadosAtaque.Agua"
                     [class.celula-batalha--acerto]="resultado === resultadosAtaque.Acerto"
-                    [class.celula-batalha--destruida]="resultado === resultadosAtaque.EmbarcacaoDestruida"
+                    [class.celula-batalha--destruida]="
+                      resultado === resultadosAtaque.EmbarcacaoDestruida
+                    "
+                    [class.celula-batalha--recente]="foiUltimaJogada('computador', coordenada)"
                     [disabled]="!podeAtacarComputador(coordenada)"
                     [attr.aria-label]="'Atacar coordenada ' + coordenada.paraTexto()"
                     (click)="atacarComputador(coordenada)"
