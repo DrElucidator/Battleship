@@ -2,10 +2,10 @@
 
 ## 1. Modelos fundamentais
 
-- [ ] 1.1 Criar `Coordenada` com validação de linha e coluna e representação textual.
-- [ ] 1.2 Criar `Orientacao`, `TipoEmbarcacao` e a definição central da frota oficial.
-- [ ] 1.3 Criar `Embarcacao` capaz de calcular as posições consecutivas a partir de uma origem e orientação.
-- [ ] 1.4 Escrever os testes de limites, tamanhos e posições horizontais e verticais.
+- [x] 1.1 Criar `Coordenada` com validação de linha e coluna e representação textual.
+- [x] 1.2 Criar `Orientacao`, `TipoEmbarcacao` e a definição central da frota oficial.
+- [x] 1.3 Criar `Embarcacao` capaz de calcular as posições consecutivas a partir de uma origem e orientação.
+- [x] 1.4 Escrever os testes de limites, tamanhos e posições horizontais e verticais.
 
 ## 2. Tabuleiro e posicionamento
 
