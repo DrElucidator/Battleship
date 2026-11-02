@@ -75,6 +75,27 @@ describe('Tabuleiro', () => {
     expect(tabuleiro.obterEmbarcacoes()).toEqual([cruzador, destroyerAdjacente]);
   });
 
+  it('deve remover uma embarcação posicionada sem alterar as demais', () => {
+    const tabuleiro = new Tabuleiro();
+    const cruzador = new Embarcacao(
+      TipoEmbarcacao.Cruzador,
+      new Coordenada('B', 2),
+      Orientacao.Horizontal,
+    );
+    const destroyer = new Embarcacao(
+      TipoEmbarcacao.Destroyer,
+      new Coordenada('D', 2),
+      Orientacao.Horizontal,
+    );
+    tabuleiro.posicionarEmbarcacao(cruzador);
+    tabuleiro.posicionarEmbarcacao(destroyer);
+
+    const embarcacaoRemovida = tabuleiro.removerEmbarcacao(TipoEmbarcacao.Cruzador);
+
+    expect(embarcacaoRemovida).toBe(cruzador);
+    expect(tabuleiro.obterEmbarcacoes()).toEqual([destroyer]);
+  });
+
   it('deve informar água ao atacar uma posição sem embarcação', () => {
     const tabuleiro = new Tabuleiro();
 

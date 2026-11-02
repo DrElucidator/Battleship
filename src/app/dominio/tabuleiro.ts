@@ -1,6 +1,7 @@
 import { Ataque, ResultadoAtaque } from './ataque';
 import { Coordenada, LinhaTabuleiro } from './coordenada';
 import { Embarcacao } from './embarcacao';
+import { TipoEmbarcacao } from './frota';
 
 const linhas: readonly LinhaTabuleiro[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
@@ -29,6 +30,16 @@ export class Tabuleiro {
 
   obterEmbarcacoes(): readonly Embarcacao[] {
     return [...this.embarcacoes];
+  }
+
+  removerEmbarcacao(tipo: TipoEmbarcacao): Embarcacao | undefined {
+    const indice = this.embarcacoes.findIndex((embarcacao) => embarcacao.tipo === tipo);
+
+    if (indice === -1) {
+      return undefined;
+    }
+
+    return this.embarcacoes.splice(indice, 1)[0];
   }
 
   atacar(coordenada: Coordenada): ResultadoAtaque {

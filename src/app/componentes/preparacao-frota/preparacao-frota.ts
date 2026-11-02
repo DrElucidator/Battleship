@@ -25,8 +25,17 @@ export class PreparacaoFrotaComponent {
   readonly embarcacoesPosicionadas = signal<readonly Embarcacao[]>([]);
   readonly frota = frotaOficial;
   readonly orientacoes = Orientacao;
+  private readonly tabuleiro = new Tabuleiro();
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
   readonly linhasDoTabuleiro = this.organizarLinhasDoTabuleiro();
+  readonly coordenadasOcupadas = computed(
+    () =>
+      new Set(
+        this.embarcacoesPosicionadas().flatMap((embarcacao) =>
+          embarcacao.posicoes.map((posicao) => posicao.paraTexto()),
+        ),
+      ),
+  );
   readonly quantidadeDeEmbarcacoesRestantes = computed(
     () => frotaOficial.length - this.embarcacoesPosicionadas().length,
   );
@@ -38,6 +47,51 @@ export class PreparacaoFrotaComponent {
 
   selecionarOrientacao(orientacao: Orientacao): void {
     this.orientacao.set(orientacao);
+  }
+
+  posicionarEmbarcacao(coordenada: Coordenada): void {
+    const tipo = this.embarcacaoSelecionada();
+
+    if (!tipo) {
+      this.mensagem.set('Selecione uma embarcação antes de escolher uma coordenada.');
+      return;
+    }
+
+    try {
+      const embarcacao = new Embarcacao(tipo, coordenada, this.orientacao());
+      this.tabuleiro.posicionarEmbarcacao(embarcacao);
+      this.embarcacoesPosicionadas.set(this.tabuleiro.obterEmbarcacoes());
+      this.embarcacaoSelecionada.set(null);
+      this.mensagem.set(
+        `${this.obterNomeEmbarcacao(tipo)} posicionado em ${coordenada.paraTexto()}.`,
+      );
+    } catch (erro) {
+      this.mensagem.set(
+        erro instanceof Error ? erro.message : 'Não foi possível posicionar a embarcação.',
+      );
+    }
+  }
+
+  estaCoordenadaOcupada(coordenada: Coordenada): boolean {
+    return this.coordenadasOcupadas().has(coordenada.paraTexto());
+  }
+
+  estaEmbarcacaoPosicionada(tipo: TipoEmbarcacao): boolean {
+    return this.embarcacoesPosicionadas().some((embarcacao) => embarcacao.tipo === tipo);
+  }
+
+  reposicionarEmbarcacao(tipo: TipoEmbarcacao): void {
+    const embarcacaoRemovida = this.tabuleiro.removerEmbarcacao(tipo);
+
+    if (!embarcacaoRemovida) {
+      return;
+    }
+
+    this.embarcacoesPosicionadas.set(this.tabuleiro.obterEmbarcacoes());
+    this.embarcacaoSelecionada.set(tipo);
+    this.mensagem.set(
+      `${this.obterNomeEmbarcacao(tipo)} removido. Escolha uma nova coordenada inicial.`,
+    );
   }
 
   obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {

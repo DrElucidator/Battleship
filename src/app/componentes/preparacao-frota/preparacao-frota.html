@@ -42,7 +42,14 @@
                   <button
                     type="button"
                     class="flex aspect-square min-w-9 w-full items-center justify-center rounded-md border border-celula-borda bg-fundo text-xs font-medium transition hover:border-agua hover:bg-agua/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-                    [attr.aria-label]="'Coordenada ' + coordenada.paraTexto() + ', livre'"
+                    [class.bg-embarcacao]="estaCoordenadaOcupada(coordenada)"
+                    [class.text-white]="estaCoordenadaOcupada(coordenada)"
+                    [attr.aria-label]="
+                      'Coordenada ' +
+                      coordenada.paraTexto() +
+                      (estaCoordenadaOcupada(coordenada) ? ', ocupada' : ', livre')
+                    "
+                    (click)="posicionarEmbarcacao(coordenada)"
                   >
                     {{ coordenada.paraTexto() }}
                   </button>
@@ -62,18 +69,35 @@
 
       <div class="space-y-2">
         @for (embarcacao of frota; track embarcacao.tipo) {
-          <button
-            type="button"
-            class="flex w-full items-center justify-between rounded-lg border border-celula-borda bg-fundo px-3 py-2 text-left transition hover:border-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-            [class.border-agua]="embarcacaoSelecionada() === embarcacao.tipo"
-            [class.ring-2]="embarcacaoSelecionada() === embarcacao.tipo"
-            [class.ring-agua]="embarcacaoSelecionada() === embarcacao.tipo"
-            [attr.aria-pressed]="embarcacaoSelecionada() === embarcacao.tipo"
-            (click)="selecionarEmbarcacao(embarcacao.tipo)"
-          >
-            <span class="font-medium">{{ obterNomeEmbarcacao(embarcacao.tipo) }}</span>
-            <span class="text-xs text-texto/65">{{ embarcacao.tamanho }} posições</span>
-          </button>
+          <div class="rounded-lg border border-celula-borda bg-fundo p-2">
+            <div class="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                class="min-w-0 flex-1 rounded-md px-1 py-1 text-left transition hover:text-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
+                [class.text-agua]="embarcacaoSelecionada() === embarcacao.tipo"
+                [attr.aria-pressed]="embarcacaoSelecionada() === embarcacao.tipo"
+                [disabled]="estaEmbarcacaoPosicionada(embarcacao.tipo)"
+                (click)="selecionarEmbarcacao(embarcacao.tipo)"
+              >
+                <span class="block truncate font-medium">{{
+                  obterNomeEmbarcacao(embarcacao.tipo)
+                }}</span>
+                <span class="block text-xs text-texto/65"> {{ embarcacao.tamanho }} posições </span>
+              </button>
+
+              @if (estaEmbarcacaoPosicionada(embarcacao.tipo)) {
+                <button
+                  type="button"
+                  class="rounded-md border border-agua px-2 py-1 text-xs font-medium text-agua transition hover:bg-agua/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
+                  (click)="reposicionarEmbarcacao(embarcacao.tipo)"
+                >
+                  Reposicionar
+                </button>
+              } @else {
+                <span class="text-xs text-texto/65">Disponível</span>
+              }
+            </div>
+          </div>
         }
       </div>
 
