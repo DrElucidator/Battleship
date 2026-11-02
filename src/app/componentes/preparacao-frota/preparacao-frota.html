@@ -131,6 +131,15 @@
           </button>
         </div>
       </div>
+
+      <button
+        type="button"
+        class="w-full rounded-lg bg-embarcacao px-4 py-3 text-sm font-semibold text-white transition hover:bg-embarcacao/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua disabled:cursor-not-allowed disabled:opacity-45"
+        [disabled]="!frotaEstaCompleta()"
+        (click)="iniciarBatalha()"
+      >
+        Iniciar batalha
+      </button>
     </aside>
   </div>
 </section>

@@ -24,8 +24,8 @@
 ## 4. Progresso e validação
 
 - [x] 4.1 Informar quantas embarcações faltam posicionar.
-- [ ] 4.2 Habilitar "Iniciar batalha" somente com a frota completa.
-- [ ] 4.3 Cobrir seleção, orientação, posicionamento, reposicionamento, erro e frota completa com testes.
+- [x] 4.2 Habilitar "Iniciar batalha" somente com a frota completa.
+- [x] 4.3 Cobrir seleção, orientação, posicionamento, reposicionamento, erro e frota completa com testes.
 
 ## 5. Verificação
 

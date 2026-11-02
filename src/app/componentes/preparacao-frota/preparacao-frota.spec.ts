@@ -70,4 +70,29 @@ describe('PreparacaoFrotaComponent', () => {
     expect(componente.quantidadeDeEmbarcacoesRestantes()).toBe(5);
     expect(componente.mensagem()).toBe('Cruzador removido. Escolha uma nova coordenada inicial.');
   });
+
+  it('deve permitir iniciar a batalha somente depois de posicionar toda a frota', () => {
+    const componente = new PreparacaoFrotaComponent();
+    const posicionamentos = [
+      [TipoEmbarcacao.PortaAvioes, new Coordenada('A', 1)],
+      [TipoEmbarcacao.Encouracado, new Coordenada('B', 1)],
+      [TipoEmbarcacao.Cruzador, new Coordenada('C', 1)],
+      [TipoEmbarcacao.Submarino, new Coordenada('D', 1)],
+      [TipoEmbarcacao.Destroyer, new Coordenada('E', 1)],
+    ] as const;
+
+    componente.iniciarBatalha();
+    expect(componente.frotaEstaCompleta()).toBe(false);
+
+    for (const [tipo, coordenada] of posicionamentos) {
+      componente.selecionarEmbarcacao(tipo);
+      componente.posicionarEmbarcacao(coordenada);
+    }
+
+    componente.iniciarBatalha();
+
+    expect(componente.frotaEstaCompleta()).toBe(true);
+    expect(componente.quantidadeDeEmbarcacoesRestantes()).toBe(0);
+    expect(componente.mensagem()).toBe('Frota pronta. A batalha será iniciada na próxima fase.');
+  });
 });

@@ -39,6 +39,9 @@ export class PreparacaoFrotaComponent {
   readonly quantidadeDeEmbarcacoesRestantes = computed(
     () => frotaOficial.length - this.embarcacoesPosicionadas().length,
   );
+  readonly frotaEstaCompleta = computed(() =>
+    this.frota.every((embarcacao) => this.estaEmbarcacaoPosicionada(embarcacao.tipo)),
+  );
 
   selecionarEmbarcacao(tipo: TipoEmbarcacao): void {
     this.embarcacaoSelecionada.set(tipo);
@@ -92,6 +95,14 @@ export class PreparacaoFrotaComponent {
     this.mensagem.set(
       `${this.obterNomeEmbarcacao(tipo)} removido. Escolha uma nova coordenada inicial.`,
     );
+  }
+
+  iniciarBatalha(): void {
+    if (!this.frotaEstaCompleta()) {
+      return;
+    }
+
+    this.mensagem.set('Frota pronta. A batalha será iniciada na próxima fase.');
   }
 
   obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
