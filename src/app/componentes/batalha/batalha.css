@@ -1,3 +1,88 @@
 :host {
   display: block;
 }
+
+.tabuleiro {
+  border-collapse: separate;
+  border-spacing: 0.2rem;
+}
+
+.tabuleiro th {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: color-mix(in srgb, var(--color-texto) 70%, transparent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.celula-batalha {
+  display: flex;
+  width: 1.85rem;
+  height: 1.85rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-celula-borda);
+  border-radius: 0.35rem;
+  background-color: var(--color-fundo);
+  color: var(--color-texto);
+  font-size: 0.65rem;
+  font-weight: 500;
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+button.celula-batalha:not(:disabled):hover {
+  border-color: var(--color-agua);
+  background-color: color-mix(in srgb, var(--color-agua) 18%, var(--color-fundo));
+  transform: translateY(-1px);
+}
+
+button.celula-batalha:disabled {
+  cursor: not-allowed;
+}
+
+button.celula-batalha:focus-visible {
+  outline: 2px solid var(--color-agua);
+  outline-offset: 2px;
+}
+
+.celula-batalha--embarcacao {
+  border-color: var(--color-embarcacao);
+  background-color: var(--color-embarcacao);
+  color: white;
+}
+
+.celula-batalha--agua {
+  border-color: var(--color-agua);
+  background-color: color-mix(in srgb, var(--color-agua) 25%, var(--color-fundo));
+  color: var(--color-texto);
+}
+
+.celula-batalha--acerto {
+  border-color: var(--color-acerto);
+  background-color: color-mix(in srgb, var(--color-acerto) 20%, var(--color-fundo));
+  color: var(--color-acerto);
+}
+
+.celula-batalha--destruida {
+  border-color: var(--color-afundado);
+  background-color: var(--color-afundado);
+  color: white;
+}
+
+@media (min-width: 640px) {
+  .tabuleiro {
+    border-spacing: 0.25rem;
+  }
+
+  .tabuleiro th {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+
+  .celula-batalha {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.7rem;
+  }
+}

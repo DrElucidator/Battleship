@@ -12,7 +12,7 @@
         aria-live="polite"
       >
         <svg lucideSwords class="size-4 text-embarcacao" aria-hidden="true"></svg>
-        @if (partida().turnoAtual === turnos.Jogador) {
+        @if (turnoAtual() === turnos.Jogador) {
           Seu turno
         } @else {
           Turno do computador
@@ -21,11 +21,105 @@
     </div>
   </div>
 
-  <div class="rounded-xl border border-celula-borda bg-celula p-6 text-center">
-    <svg lucideCrosshair class="mx-auto size-8 text-agua" aria-hidden="true"></svg>
-    <h3 class="mt-3 text-lg font-semibold">Tabuleiros em preparação</h3>
-    <p class="mx-auto mt-1 max-w-lg text-sm text-texto/75">
-      Na próxima etapa, você visualizará sua frota e poderá atacar o tabuleiro adversário.
-    </p>
+  <p class="rounded-lg border border-celula-borda bg-celula px-4 py-3 text-sm" role="status">
+    {{ mensagem() }}
+  </p>
+
+  <div class="grid gap-5 xl:grid-cols-2">
+    <section class="overflow-x-auto rounded-xl border border-celula-borda bg-celula p-3" aria-labelledby="titulo-seu-tabuleiro">
+      <div class="mb-3 flex items-center gap-2">
+        <svg lucideShip class="size-5 text-embarcacao" aria-hidden="true"></svg>
+        <h3 id="titulo-seu-tabuleiro" class="font-semibold">Sua frota</h3>
+      </div>
+
+      <table class="tabuleiro" aria-label="Tabuleiro do jogador">
+        <thead>
+          <tr>
+            <th scope="col" aria-label="Linhas"></th>
+            @for (coluna of colunas; track coluna) {
+              <th scope="col">{{ coluna }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (linha of linhasDoTabuleiro; track linha.rotulo) {
+            <tr>
+              <th scope="row">{{ linha.rotulo }}</th>
+              @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
+                @let resultado = obterResultadoAtaque(partida().tabuleiroJogador, coordenada);
+                <td>
+                  <span
+                    class="celula-batalha"
+                    [class.celula-batalha--embarcacao]="possuiEmbarcacaoJogador(coordenada) && !resultado"
+                    [class.celula-batalha--agua]="resultado === resultadosAtaque.Agua"
+                    [class.celula-batalha--acerto]="resultado === resultadosAtaque.Acerto"
+                    [class.celula-batalha--destruida]="resultado === resultadosAtaque.EmbarcacaoDestruida"
+                    [attr.aria-label]="'Sua coordenada ' + coordenada.paraTexto()"
+                  >
+                    @if (resultado === resultadosAtaque.Agua) {
+                      <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (resultado) {
+                      <svg lucideCrosshair class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (possuiEmbarcacaoJogador(coordenada)) {
+                      <svg lucideShip class="size-3.5" aria-hidden="true"></svg>
+                    } @else {
+                      {{ coordenada.paraTexto() }}
+                    }
+                  </span>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="overflow-x-auto rounded-xl border border-celula-borda bg-celula p-3" aria-labelledby="titulo-tabuleiro-computador">
+      <div class="mb-3 flex items-center gap-2">
+        <svg lucideCrosshair class="size-5 text-agua" aria-hidden="true"></svg>
+        <h3 id="titulo-tabuleiro-computador" class="font-semibold">Tabuleiro adversário</h3>
+      </div>
+
+      <table class="tabuleiro" aria-label="Tabuleiro adversário">
+        <thead>
+          <tr>
+            <th scope="col" aria-label="Linhas"></th>
+            @for (coluna of colunas; track coluna) {
+              <th scope="col">{{ coluna }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (linha of linhasDoTabuleiro; track linha.rotulo) {
+            <tr>
+              <th scope="row">{{ linha.rotulo }}</th>
+              @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
+                @let resultado = obterResultadoAtaque(partida().tabuleiroComputador, coordenada);
+                <td>
+                  <button
+                    type="button"
+                    class="celula-batalha"
+                    [class.celula-batalha--agua]="resultado === resultadosAtaque.Agua"
+                    [class.celula-batalha--acerto]="resultado === resultadosAtaque.Acerto"
+                    [class.celula-batalha--destruida]="resultado === resultadosAtaque.EmbarcacaoDestruida"
+                    [disabled]="!podeAtacarComputador(coordenada)"
+                    [attr.aria-label]="'Atacar coordenada ' + coordenada.paraTexto()"
+                    (click)="atacarComputador(coordenada)"
+                  >
+                    @if (resultado === resultadosAtaque.Agua) {
+                      <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (resultado) {
+                      <svg lucideCrosshair class="size-3.5" aria-hidden="true"></svg>
+                    } @else {
+                      {{ coordenada.paraTexto() }}
+                    }
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
   </div>
 </section>

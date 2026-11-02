@@ -15,10 +15,10 @@
 
 ## 3. Interface de batalha
 
-- [ ] 3.1 Renderizar os tabuleiros do jogador e do computador com legenda acessível.
-- [ ] 3.2 Permitir ataque no tabuleiro adversário somente no turno do jogador.
-- [ ] 3.3 Exibir água, acerto, embarcação destruída, turno e mensagens de resultado.
-- [ ] 3.4 Executar a resposta do computador sem revelar sua frota.
+- [x] 3.1 Renderizar os tabuleiros do jogador e do computador com legenda acessível.
+- [x] 3.2 Permitir ataque no tabuleiro adversário somente no turno do jogador.
+- [x] 3.3 Exibir água, acerto, embarcação destruída, turno e mensagens de resultado.
+- [x] 3.4 Executar a resposta do computador sem revelar sua frota.
 
 ## 4. Verificação
 
