@@ -9,10 +9,10 @@
 
 ## 2. Tabuleiro e posicionamento
 
-- [ ] 2.1 Criar `Tabuleiro` vazio de 10 x 10 posições.
-- [ ] 2.2 Posicionar embarcação somente quando todas as posições estiverem dentro do tabuleiro e livres.
-- [ ] 2.3 Garantir que tentativas inválidas mantenham o estado válido anterior.
-- [ ] 2.4 Cobrir sobreposição, bordas e adjacência permitida com testes.
+- [x] 2.1 Criar `Tabuleiro` vazio de 10 x 10 posições.
+- [x] 2.2 Posicionar embarcação somente quando todas as posições estiverem dentro do tabuleiro e livres.
+- [x] 2.3 Garantir que tentativas inválidas mantenham o estado válido anterior.
+- [x] 2.4 Cobrir sobreposição, bordas e adjacência permitida com testes.
 
 ## 3. Ataques
 
