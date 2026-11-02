@@ -23,6 +23,6 @@
 
 ## 4. Verificação
 
-- [ ] 4.1 Rodar `npm run lint`, `npm test` e `npm run build`.
-- [ ] 4.2 Revisar que nenhum componente Angular ou regra de turno foi criado nesta change.
-- [ ] 4.3 Arquivar a change somente depois de a implementação e a revisão estarem concluídas.
+- [x] 4.1 Rodar `npm run lint`, `npm test` e `npm run build`.
+- [x] 4.2 Revisar que nenhum componente Angular ou regra de turno foi criado nesta change.
+- [x] 4.3 Arquivar a change somente depois de a implementação e a revisão estarem concluídas.
