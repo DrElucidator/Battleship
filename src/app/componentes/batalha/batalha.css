@@ -70,6 +70,44 @@ button.celula-batalha:focus-visible {
   color: white;
 }
 
+.painel-resultado {
+  display: grid;
+  justify-items: center;
+  border: 1px solid currentColor;
+  border-radius: 0.9rem;
+  padding: 1.5rem;
+  text-align: center;
+  animation: resultado-entra 260ms ease-out both;
+}
+
+.painel-resultado--vitoria {
+  background-color: color-mix(in srgb, var(--color-agua) 25%, var(--color-fundo));
+  color: #0369a1;
+}
+
+.painel-resultado--derrota {
+  background-color: color-mix(in srgb, var(--color-acerto) 18%, var(--color-fundo));
+  color: var(--color-acerto);
+}
+
+@keyframes resultado-entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .painel-resultado {
+    animation: none;
+  }
+}
+
 @media (min-width: 640px) {
   .tabuleiro {
     border-spacing: 0.25rem;

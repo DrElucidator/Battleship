@@ -8,7 +8,12 @@
 
   <main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
     @if (partida(); as partidaAtual) {
-      <app-batalha [partida]="partidaAtual" />
+      <app-batalha
+        [partida]="partidaAtual"
+        [pontuacao]="pontuacao()"
+        (resultadoFinalizado)="registrarResultado($event)"
+        (novaPartidaSolicitada)="iniciarNovaPartida()"
+      />
     } @else {
       <app-preparacao-frota (batalhaIniciada)="iniciarBatalha($event)" />
     }

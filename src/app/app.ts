@@ -3,7 +3,8 @@ import { LucideShip } from '@lucide/angular';
 import { BatalhaComponent } from './componentes/batalha/batalha';
 import { PreparacaoFrotaComponent } from './componentes/preparacao-frota/preparacao-frota';
 import { FabricaFrotaComputador } from './dominio/fabrica-frota-computador';
-import { Partida } from './dominio/partida';
+import { Partida, ResultadoPartida } from './dominio/partida';
+import { Placar, Pontuacao } from './dominio/placar';
 import { Tabuleiro } from './dominio/tabuleiro';
 
 @Component({
@@ -15,10 +16,21 @@ import { Tabuleiro } from './dominio/tabuleiro';
 export class App {
   protected readonly nomeJogo = signal('Batalha Naval');
   protected readonly partida = signal<Partida | null>(null);
+  protected readonly pontuacao = signal<Pontuacao>({ jogador: 0, computador: 0 });
   private readonly fabricaFrotaComputador = new FabricaFrotaComputador();
+  private readonly placar = new Placar();
 
   iniciarBatalha(tabuleiroJogador: Tabuleiro): void {
     const tabuleiroComputador = this.fabricaFrotaComputador.criar();
     this.partida.set(new Partida(tabuleiroJogador, tabuleiroComputador));
+  }
+
+  registrarResultado(resultado: ResultadoPartida): void {
+    this.placar.registrarResultado(resultado);
+    this.pontuacao.set(this.placar.obterPontuacao());
+  }
+
+  iniciarNovaPartida(): void {
+    this.partida.set(null);
   }
 }

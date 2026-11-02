@@ -1,8 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { LucideCrosshair, LucideShip, LucideSwords, LucideWaves } from '@lucide/angular';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  LucideCircleX,
+  LucideCrosshair,
+  LucideMedal,
+  LucideRotateCcw,
+  LucideShip,
+  LucideSwords,
+  LucideTrophy,
+  LucideWaves,
+} from '@lucide/angular';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
-import { Partida, TurnoPartida } from '../../dominio/partida';
+import { Partida, ResultadoPartida, TurnoPartida } from '../../dominio/partida';
+import { Pontuacao } from '../../dominio/placar';
 import { Tabuleiro } from '../../dominio/tabuleiro';
 
 interface LinhaDoTabuleiro {
@@ -12,23 +22,42 @@ interface LinhaDoTabuleiro {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideCrosshair, LucideShip, LucideSwords, LucideWaves],
+  imports: [
+    LucideCircleX,
+    LucideCrosshair,
+    LucideMedal,
+    LucideRotateCcw,
+    LucideShip,
+    LucideSwords,
+    LucideTrophy,
+    LucideWaves,
+  ],
   selector: 'app-batalha',
   styleUrl: './batalha.css',
   templateUrl: './batalha.html',
 })
 export class BatalhaComponent {
   readonly partida = input.required<Partida>();
+  readonly pontuacao = input.required<Pontuacao>();
+  readonly resultadoFinalizado = output<ResultadoPartida>();
+  readonly novaPartidaSolicitada = output<void>();
   readonly turnos = TurnoPartida;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   private readonly revisao = signal(0);
+  private resultadoFoiComunicado = false;
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
   readonly linhasDoTabuleiro = this.organizarLinhasDoTabuleiro();
   readonly turnoAtual = computed(() => {
     this.revisao();
     return this.partida().turnoAtual;
   });
+  readonly resultadoAtual = computed(() => {
+    this.revisao();
+    return this.partida().resultado;
+  });
+  readonly resumoJogador = computed(() => this.calcularResumo(TurnoPartida.Jogador));
+  readonly resumoComputador = computed(() => this.calcularResumo(TurnoPartida.Computador));
   readonly coordenadasJogadorOcupadas = computed(() => {
     this.revisao();
     return new Set(
@@ -52,6 +81,7 @@ export class BatalhaComponent {
 
       if (this.partida().encerrada) {
         this.mensagem.set('Você destruiu toda a frota adversária. Vitória!');
+        this.comunicarResultadoFinal();
         return;
       }
 
@@ -63,6 +93,7 @@ export class BatalhaComponent {
 
       if (this.partida().encerrada) {
         this.mensagem.set('O computador destruiu toda a sua frota. Fim de jogo.');
+        this.comunicarResultadoFinal();
       }
     } catch (erro) {
       this.mensagem.set(erro instanceof Error ? erro.message : 'Não foi possível executar o ataque.');
@@ -98,8 +129,39 @@ export class BatalhaComponent {
     return descricoes[resultado];
   }
 
+  solicitarNovaPartida(): void {
+    this.novaPartidaSolicitada.emit();
+  }
+
   private atualizarEstado(): void {
     this.revisao.update((valor) => valor + 1);
+  }
+
+  private calcularResumo(atacante: TurnoPartida): {
+    ataques: number;
+    agua: number;
+    acertos: number;
+    destruidas: number;
+  } {
+    this.revisao();
+    const jogadas = this.partida().obterJogadas().filter((jogada) => jogada.atacante === atacante);
+
+    return {
+      ataques: jogadas.length,
+      agua: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Agua).length,
+      acertos: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Acerto).length,
+      destruidas: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.EmbarcacaoDestruida)
+        .length,
+    };
+  }
+
+  private comunicarResultadoFinal(): void {
+    if (this.resultadoFoiComunicado) {
+      return;
+    }
+
+    this.resultadoFoiComunicado = true;
+    this.resultadoFinalizado.emit(this.partida().resultado);
   }
 
   private organizarLinhasDoTabuleiro(): readonly LinhaDoTabuleiro[] {

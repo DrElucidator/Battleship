@@ -8,15 +8,15 @@
 
 ## 2. Resumo e placar visual
 
-- [ ] 2.1 Derivar estatísticas do histórico de jogadas.
-- [ ] 2.2 Exibir placar acumulado e resumo durante a batalha.
-- [ ] 2.3 Manter os números acessíveis sem depender apenas de cores.
+- [x] 2.1 Derivar estatísticas do histórico de jogadas.
+- [x] 2.2 Exibir placar acumulado e resumo durante a batalha.
+- [x] 2.3 Manter os números acessíveis sem depender apenas de cores.
 
 ## 3. Resultado e nova partida
 
-- [ ] 3.1 Comunicar o resultado final ao shell uma única vez.
-- [ ] 3.2 Criar painel de vitória e derrota com animação CSS discreta.
-- [ ] 3.3 Adicionar ação de nova partida que preserva o placar e retorna à preparação.
+- [x] 3.1 Comunicar o resultado final ao shell uma única vez.
+- [x] 3.2 Criar painel de vitória e derrota com animação CSS discreta.
+- [x] 3.3 Adicionar ação de nova partida que preserva o placar e retorna à preparação.
 
 ## 4. Verificação
 
