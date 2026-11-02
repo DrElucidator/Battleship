@@ -16,9 +16,9 @@
 
 ## 3. Painel da frota
 
-- [ ] 3.1 Listar porta-aviões, encouraçado, cruzador, submarino e destroyer com seus tamanhos.
+- [x] 3.1 Listar porta-aviões, encouraçado, cruzador, submarino e destroyer com seus tamanhos.
 - [ ] 3.2 Permitir escolher somente embarcações ainda não posicionadas.
-- [ ] 3.3 Criar controle acessível para alternar orientação horizontal e vertical.
+- [x] 3.3 Criar controle acessível para alternar orientação horizontal e vertical.
 - [ ] 3.4 Exibir ação de reposicionar para embarcações já posicionadas.
 
 ## 4. Progresso e validação

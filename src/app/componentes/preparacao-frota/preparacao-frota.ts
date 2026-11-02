@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { LucideAnchor, LucideRotateCw } from '@lucide/angular';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Embarcacao } from '../../dominio/embarcacao';
 import { frotaOficial, TipoEmbarcacao } from '../../dominio/frota';
@@ -12,6 +13,7 @@ interface LinhaDoTabuleiro {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideAnchor, LucideRotateCw],
   selector: 'app-preparacao-frota',
   styleUrl: './preparacao-frota.css',
   templateUrl: './preparacao-frota.html',
@@ -21,6 +23,8 @@ export class PreparacaoFrotaComponent {
   readonly orientacao = signal(Orientacao.Horizontal);
   readonly mensagem = signal('Selecione uma embarcação para começar.');
   readonly embarcacoesPosicionadas = signal<readonly Embarcacao[]>([]);
+  readonly frota = frotaOficial;
+  readonly orientacoes = Orientacao;
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
   readonly linhasDoTabuleiro = this.organizarLinhasDoTabuleiro();
   readonly quantidadeDeEmbarcacoesRestantes = computed(
@@ -34,6 +38,18 @@ export class PreparacaoFrotaComponent {
 
   selecionarOrientacao(orientacao: Orientacao): void {
     this.orientacao.set(orientacao);
+  }
+
+  obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
+    const nomes: Record<TipoEmbarcacao, string> = {
+      [TipoEmbarcacao.PortaAvioes]: 'Porta-aviões',
+      [TipoEmbarcacao.Encouracado]: 'Encouraçado',
+      [TipoEmbarcacao.Cruzador]: 'Cruzador',
+      [TipoEmbarcacao.Submarino]: 'Submarino',
+      [TipoEmbarcacao.Destroyer]: 'Destroyer',
+    };
+
+    return nomes[tipo];
   }
 
   private organizarLinhasDoTabuleiro(): readonly LinhaDoTabuleiro[] {
