@@ -1,0 +1,31 @@
+<section class="space-y-6" aria-labelledby="titulo-batalha">
+  <div class="space-y-2">
+    <p class="text-sm font-semibold tracking-wide text-agua">BATALHA EM ANDAMENTO</p>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 id="titulo-batalha" class="text-3xl font-bold tracking-tight">Ataque o computador</h2>
+        <p class="mt-1 text-texto/75">Selecione uma coordenada no tabuleiro adversário.</p>
+      </div>
+
+      <p
+        class="flex items-center gap-2 rounded-lg border border-celula-borda bg-celula px-4 py-2 text-sm font-semibold"
+        aria-live="polite"
+      >
+        <svg lucideSwords class="size-4 text-embarcacao" aria-hidden="true"></svg>
+        @if (partida().turnoAtual === turnos.Jogador) {
+          Seu turno
+        } @else {
+          Turno do computador
+        }
+      </p>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-celula-borda bg-celula p-6 text-center">
+    <svg lucideCrosshair class="mx-auto size-8 text-agua" aria-hidden="true"></svg>
+    <h3 class="mt-3 text-lg font-semibold">Tabuleiros em preparação</h3>
+    <p class="mx-auto mt-1 max-w-lg text-sm text-texto/75">
+      Na próxima etapa, você visualizará sua frota e poderá atacar o tabuleiro adversário.
+    </p>
+  </div>
+</section>

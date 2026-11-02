@@ -9,9 +9,9 @@
 
 ## 2. Transição da preparação
 
-- [ ] 2.1 Expor a frota válida preparada para o shell da aplicação.
-- [ ] 2.2 Substituir a mensagem provisória de início pela criação da partida.
-- [ ] 2.3 Preservar a preparação enquanto a batalha não for iniciada.
+- [x] 2.1 Expor a frota válida preparada para o shell da aplicação.
+- [x] 2.2 Substituir a mensagem provisória de início pela criação da partida.
+- [x] 2.3 Preservar a preparação enquanto a batalha não for iniciada.
 
 ## 3. Interface de batalha
 

@@ -7,6 +7,10 @@
   </header>
 
   <main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
-    <app-preparacao-frota />
+    @if (partida(); as partidaAtual) {
+      <app-batalha [partida]="partidaAtual" />
+    } @else {
+      <app-preparacao-frota (batalhaIniciada)="iniciarBatalha($event)" />
+    }
   </main>
 </div>

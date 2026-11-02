@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, output, signal } from '@angular/core';
 import { LucideAnchor, LucideRotateCw, LucideShip } from '@lucide/angular';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Embarcacao } from '../../dominio/embarcacao';
@@ -19,6 +19,7 @@ interface LinhaDoTabuleiro {
   templateUrl: './preparacao-frota.html',
 })
 export class PreparacaoFrotaComponent {
+  readonly batalhaIniciada = output<Tabuleiro>();
   readonly embarcacaoSelecionada = signal<TipoEmbarcacao | null>(null);
   readonly orientacao = signal(Orientacao.Horizontal);
   readonly mensagem = signal('Selecione uma embarcação para começar.');
@@ -102,7 +103,7 @@ export class PreparacaoFrotaComponent {
       return;
     }
 
-    this.mensagem.set('Frota pronta. A batalha será iniciada na próxima fase.');
+    this.batalhaIniciada.emit(this.tabuleiro);
   }
 
   obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
