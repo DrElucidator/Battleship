@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { LucideAnchor, LucideRotateCw } from '@lucide/angular';
+import { LucideAnchor, LucideRotateCw, LucideShip } from '@lucide/angular';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Embarcacao } from '../../dominio/embarcacao';
 import { frotaOficial, TipoEmbarcacao } from '../../dominio/frota';
@@ -13,7 +13,7 @@ interface LinhaDoTabuleiro {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideAnchor, LucideRotateCw],
+  imports: [LucideAnchor, LucideRotateCw, LucideShip],
   selector: 'app-preparacao-frota',
   styleUrl: './preparacao-frota.css',
   templateUrl: './preparacao-frota.html',
