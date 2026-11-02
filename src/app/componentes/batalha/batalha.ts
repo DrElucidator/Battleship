@@ -85,16 +85,14 @@ export class BatalhaComponent {
         return;
       }
 
-      const jogadaComputador = this.partida().atacarJogador();
-      this.mensagem.set(
-        `Você atacou ${coordenada.paraTexto()}. O computador atacou ${jogadaComputador.coordenada.paraTexto()}: ${this.obterDescricaoResultado(jogadaComputador.resultado)}.`,
-      );
-      this.atualizarEstado();
-
-      if (this.partida().encerrada) {
-        this.mensagem.set('O computador destruiu toda a sua frota. Fim de jogo.');
-        this.comunicarResultadoFinal();
+      if (this.partida().turnoAtual === TurnoPartida.Jogador) {
+        this.mensagem.set(
+          `Você acertou em ${coordenada.paraTexto()}. Jogue novamente para continuar o ataque.`,
+        );
+        return;
       }
+
+      this.resolverTurnoComputador(coordenada);
     } catch (erro) {
       this.mensagem.set(erro instanceof Error ? erro.message : 'Não foi possível executar o ataque.');
     }
@@ -135,6 +133,31 @@ export class BatalhaComponent {
 
   private atualizarEstado(): void {
     this.revisao.update((valor) => valor + 1);
+  }
+
+  private resolverTurnoComputador(coordenadaJogador: Coordenada): void {
+    const jogadasComputador = [];
+
+    while (
+      this.partida().turnoAtual === TurnoPartida.Computador &&
+      !this.partida().encerrada
+    ) {
+      jogadasComputador.push(this.partida().atacarJogador());
+      this.atualizarEstado();
+    }
+
+    if (this.partida().encerrada) {
+      this.mensagem.set('O computador destruiu toda a sua frota. Fim de jogo.');
+      this.comunicarResultadoFinal();
+      return;
+    }
+
+    const ataques = jogadasComputador
+      .map((jogada) => `${jogada.coordenada.paraTexto()} (${this.obterDescricaoResultado(jogada.resultado)})`)
+      .join(', ');
+    this.mensagem.set(
+      `Você atacou ${coordenadaJogador.paraTexto()}. O computador respondeu em ${ataques}.`,
+    );
   }
 
   private calcularResumo(atacante: TurnoPartida): {

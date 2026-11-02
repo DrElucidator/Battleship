@@ -75,6 +75,22 @@ export class Tabuleiro {
     );
   }
 
+  obterCoordenadasAtingidasDeEmbarcacoesNaoDestruidas(): readonly Coordenada[] {
+    const coordenadasAtacadas = new Set(
+      this.ataques.map((ataque) => ataque.coordenada.paraTexto()),
+    );
+
+    return this.embarcacoes.flatMap((embarcacao) => {
+      const posicoesAtingidas = embarcacao.posicoes.filter((posicao) =>
+        coordenadasAtacadas.has(posicao.paraTexto()),
+      );
+
+      return posicoesAtingidas.length > 0 && posicoesAtingidas.length < embarcacao.posicoes.length
+        ? posicoesAtingidas
+        : [];
+    });
+  }
+
   private possuiPosicaoOcupada(embarcacao: Embarcacao): boolean {
     const posicoesOcupadas = new Set(
       this.embarcacoes.flatMap((item) => item.posicoes.map((posicao) => posicao.paraTexto())),

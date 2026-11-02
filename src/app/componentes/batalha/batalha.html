@@ -36,35 +36,7 @@
     {{ mensagem() }}
   </p>
 
-  <section class="grid gap-3 sm:grid-cols-2" aria-label="Resumo da partida">
-    <article class="rounded-xl border border-celula-borda bg-celula p-4">
-      <h3 class="flex items-center gap-2 font-semibold">
-        <svg lucideMedal class="size-4 text-agua" aria-hidden="true"></svg>
-        Seu resumo
-      </h3>
-      <dl class="mt-3 grid grid-cols-2 gap-3 text-sm">
-        <div><dt class="text-texto/65">Ataques</dt><dd class="font-semibold">{{ resumoJogador().ataques }}</dd></div>
-        <div><dt class="text-texto/65">Água</dt><dd class="font-semibold">{{ resumoJogador().agua }}</dd></div>
-        <div><dt class="text-texto/65">Acertos</dt><dd class="font-semibold">{{ resumoJogador().acertos }}</dd></div>
-        <div><dt class="text-texto/65">Destruídas</dt><dd class="font-semibold">{{ resumoJogador().destruidas }}</dd></div>
-      </dl>
-    </article>
-
-    <article class="rounded-xl border border-celula-borda bg-celula p-4">
-      <h3 class="flex items-center gap-2 font-semibold">
-        <svg lucideCrosshair class="size-4 text-embarcacao" aria-hidden="true"></svg>
-        Resumo do computador
-      </h3>
-      <dl class="mt-3 grid grid-cols-2 gap-3 text-sm">
-        <div><dt class="text-texto/65">Ataques</dt><dd class="font-semibold">{{ resumoComputador().ataques }}</dd></div>
-        <div><dt class="text-texto/65">Água</dt><dd class="font-semibold">{{ resumoComputador().agua }}</dd></div>
-        <div><dt class="text-texto/65">Acertos</dt><dd class="font-semibold">{{ resumoComputador().acertos }}</dd></div>
-        <div><dt class="text-texto/65">Destruídas</dt><dd class="font-semibold">{{ resumoComputador().destruidas }}</dd></div>
-      </dl>
-    </article>
-  </section>
-
-  <div class="grid gap-5 xl:grid-cols-2">
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_11rem_minmax(0,1fr)]">
     <section class="overflow-x-auto rounded-xl border border-celula-borda bg-celula p-3" aria-labelledby="titulo-seu-tabuleiro">
       <div class="mb-3 flex items-center gap-2">
         <svg lucideShip class="size-5 text-embarcacao" aria-hidden="true"></svg>
@@ -112,6 +84,33 @@
         </tbody>
       </table>
     </section>
+
+    <aside class="resumo-batalha" aria-label="Resumo da partida">
+      <div class="flex items-center gap-2">
+        <svg lucideMedal class="size-4 text-agua" aria-hidden="true"></svg>
+        <h3 class="font-semibold">Resumo</h3>
+      </div>
+
+      <section class="resumo-batalha__grupo" aria-labelledby="titulo-resumo-jogador">
+        <h4 id="titulo-resumo-jogador">Você</h4>
+        <dl>
+          <div><dt>Ataques</dt><dd>{{ resumoJogador().ataques }}</dd></div>
+          <div><dt>Água</dt><dd>{{ resumoJogador().agua }}</dd></div>
+          <div><dt>Acertos</dt><dd>{{ resumoJogador().acertos }}</dd></div>
+          <div><dt>Destruídas</dt><dd>{{ resumoJogador().destruidas }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="resumo-batalha__grupo" aria-labelledby="titulo-resumo-computador">
+        <h4 id="titulo-resumo-computador">Computador</h4>
+        <dl>
+          <div><dt>Ataques</dt><dd>{{ resumoComputador().ataques }}</dd></div>
+          <div><dt>Água</dt><dd>{{ resumoComputador().agua }}</dd></div>
+          <div><dt>Acertos</dt><dd>{{ resumoComputador().acertos }}</dd></div>
+          <div><dt>Destruídas</dt><dd>{{ resumoComputador().destruidas }}</dd></div>
+        </dl>
+      </section>
+    </aside>
 
     <section class="overflow-x-auto rounded-xl border border-celula-borda bg-celula p-3" aria-labelledby="titulo-tabuleiro-computador">
       <div class="mb-3 flex items-center gap-2">
@@ -163,36 +162,44 @@
   </div>
 
   @if (resultadoAtual() !== 'EmAndamento') {
-    <section
-      class="painel-resultado"
-      [class.painel-resultado--vitoria]="resultadoAtual() === 'VitoriaJogador'"
-      [class.painel-resultado--derrota]="resultadoAtual() === 'VitoriaComputador'"
-      role="dialog"
-      aria-modal="false"
-      aria-labelledby="titulo-resultado"
-    >
-      @if (resultadoAtual() === 'VitoriaJogador') {
-        <svg lucideTrophy class="size-9" aria-hidden="true"></svg>
-        <div>
-          <h3 id="titulo-resultado" class="text-xl font-bold">Vitória!</h3>
-          <p class="mt-1 text-sm">Você destruiu toda a frota adversária.</p>
-        </div>
-      } @else {
-        <svg lucideCircleX class="size-9" aria-hidden="true"></svg>
-        <div>
-          <h3 id="titulo-resultado" class="text-xl font-bold">Derrota</h3>
-          <p class="mt-1 text-sm">O computador destruiu toda a sua frota.</p>
-        </div>
-      }
-
-      <button
-        type="button"
-        class="mt-4 inline-flex items-center gap-2 rounded-lg border border-current px-4 py-2 text-sm font-semibold transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-        (click)="solicitarNovaPartida()"
+    <div class="modal-resultado">
+      <section
+        class="painel-resultado"
+        [class.painel-resultado--vitoria]="resultadoAtual() === 'VitoriaJogador'"
+        [class.painel-resultado--derrota]="resultadoAtual() === 'VitoriaComputador'"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-resultado"
       >
-        <svg lucideRotateCcw class="size-4" aria-hidden="true"></svg>
-        Nova partida
-      </button>
-    </section>
+        @if (resultadoAtual() === 'VitoriaJogador') {
+          <svg lucideTrophy class="size-10" aria-hidden="true"></svg>
+          <div>
+            <h3 id="titulo-resultado" class="text-2xl font-bold">Vitória!</h3>
+            <p class="mt-1 text-sm">Você destruiu toda a frota adversária.</p>
+          </div>
+          <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
+            Embarcações destruídas: {{ resumoJogador().destruidas }} de 5
+          </p>
+        } @else {
+          <svg lucideCircleX class="size-10" aria-hidden="true"></svg>
+          <div>
+            <h3 id="titulo-resultado" class="text-2xl font-bold">Derrota</h3>
+            <p class="mt-1 text-sm">O computador destruiu toda a sua frota.</p>
+          </div>
+          <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
+            Embarcações destruídas pelo computador: {{ resumoComputador().destruidas }} de 5
+          </p>
+        }
+
+        <button
+          type="button"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-current px-4 py-2 text-sm font-semibold transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          (click)="solicitarNovaPartida()"
+        >
+          <svg lucideRotateCcw class="size-4" aria-hidden="true"></svg>
+          Nova partida
+        </button>
+      </section>
+    </div>
   }
 </section>

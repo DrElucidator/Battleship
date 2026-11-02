@@ -1,6 +1,7 @@
 import { ResultadoAtaque } from './ataque';
 import { Coordenada } from './coordenada';
 import { GeradorAleatorio } from './fabrica-frota-computador';
+import { EstrategiaAtaqueComputador } from './estrategia-ataque-computador';
 import { Tabuleiro } from './tabuleiro';
 
 export enum TurnoPartida {
@@ -24,6 +25,7 @@ export class Partida {
   private readonly jogadas: Jogada[] = [];
   private turno = TurnoPartida.Jogador;
   private resultadoAtual = ResultadoPartida.EmAndamento;
+  private readonly estrategiaAtaqueComputador = new EstrategiaAtaqueComputador();
 
   constructor(
     readonly tabuleiroJogador: Tabuleiro,
@@ -49,7 +51,7 @@ export class Partida {
 
   atacarJogador(geradorAleatorio: GeradorAleatorio = Math.random): Jogada {
     this.garantirTurno(TurnoPartida.Computador);
-    const coordenada = this.sortearCoordenadaAindaNaoAtacada(
+    const coordenada = this.estrategiaAtaqueComputador.escolherCoordenada(
       this.tabuleiroJogador,
       geradorAleatorio,
     );
@@ -78,7 +80,11 @@ export class Partida {
       return jogada;
     }
 
-    this.turno = atacante === TurnoPartida.Jogador ? TurnoPartida.Computador : TurnoPartida.Jogador;
+    if (resultado === ResultadoAtaque.Agua) {
+      this.turno =
+        atacante === TurnoPartida.Jogador ? TurnoPartida.Computador : TurnoPartida.Jogador;
+    }
+
     return jogada;
   }
 
@@ -92,23 +98,4 @@ export class Partida {
     }
   }
 
-  private sortearCoordenadaAindaNaoAtacada(
-    tabuleiro: Tabuleiro,
-    geradorAleatorio: GeradorAleatorio,
-  ): Coordenada {
-    const coordenadasAtacadas = new Set(
-      tabuleiro.obterAtaques().map((ataque) => ataque.coordenada.paraTexto()),
-    );
-    const coordenadasDisponiveis = tabuleiro
-      .obterCoordenadas()
-      .filter((coordenada) => !coordenadasAtacadas.has(coordenada.paraTexto()));
-    const indice = Math.floor(geradorAleatorio() * coordenadasDisponiveis.length);
-    const coordenada = coordenadasDisponiveis[indice];
-
-    if (!coordenada) {
-      throw new RangeError('Não há coordenadas disponíveis para ataque.');
-    }
-
-    return coordenada;
-  }
 }

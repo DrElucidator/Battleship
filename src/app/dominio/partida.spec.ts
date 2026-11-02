@@ -6,7 +6,7 @@ import { Partida, ResultadoPartida, TurnoPartida } from './partida';
 import { Tabuleiro } from './tabuleiro';
 
 describe('Partida', () => {
-  it('deve alternar o turno após um ataque válido do jogador', () => {
+  it('deve alternar o turno após o jogador atacar água', () => {
     const partida = criarPartida();
 
     const jogada = partida.atacarComputador(new Coordenada('J', 10));
@@ -14,6 +14,14 @@ describe('Partida', () => {
     expect(jogada.atacante).toBe(TurnoPartida.Jogador);
     expect(jogada.coordenada.paraTexto()).toBe('J10');
     expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
+  });
+
+  it('deve manter o turno do jogador após um acerto', () => {
+    const partida = criarPartida();
+
+    partida.atacarComputador(new Coordenada('B', 1));
+
+    expect(partida.turnoAtual).toBe(TurnoPartida.Jogador);
   });
 
   it('deve impedir o jogador de atacar fora do seu turno', () => {
@@ -33,7 +41,7 @@ describe('Partida', () => {
 
     expect(jogada.atacante).toBe(TurnoPartida.Computador);
     expect(jogada.coordenada.paraTexto()).toBe('A1');
-    expect(partida.turnoAtual).toBe(TurnoPartida.Jogador);
+    expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
   });
 
   it('deve declarar vitória do jogador ao destruir toda a frota adversária', () => {
@@ -42,7 +50,6 @@ describe('Partida', () => {
     const partida = new Partida(tabuleiroJogador, tabuleiroComputador);
 
     partida.atacarComputador(new Coordenada('B', 1));
-    partida.atacarJogador(() => 0.5);
     partida.atacarComputador(new Coordenada('B', 2));
 
     expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogador);
@@ -57,7 +64,6 @@ describe('Partida', () => {
 
     partida.atacarComputador(new Coordenada('J', 10));
     partida.atacarJogador(() => 0);
-    partida.atacarComputador(new Coordenada('J', 9));
     partida.atacarJogador(() => 0);
 
     expect(partida.resultado).toBe(ResultadoPartida.VitoriaComputador);
