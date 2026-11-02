@@ -42,6 +42,9 @@ describe('PreparacaoFrotaComponent', () => {
 
     expect(componente.embarcacoesPosicionadas()).toHaveLength(1);
     expect(componente.estaCoordenadaOcupada(new Coordenada('B', 4))).toBe(true);
+    expect(componente.obterTipoEmbarcacaoNaCoordenada(new Coordenada('B', 4))).toBe(
+      TipoEmbarcacao.Cruzador,
+    );
     expect(componente.embarcacaoSelecionada()).toBeNull();
     expect(componente.quantidadeDeEmbarcacoesRestantes()).toBe(4);
     expect(componente.mensagem()).toBe('Cruzador posicionado em B2.');

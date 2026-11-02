@@ -35,6 +35,16 @@ describe('BatalhaComponent', () => {
     expect(fixture.componentInstance.ultimaJogada()?.tabuleiroAtacado).toBe('jogador');
     vi.useRealTimers();
   });
+
+  it('deve identificar o tipo da embarcação em uma coordenada da frota do jogador', () => {
+    const fixture = TestBed.createComponent(BatalhaComponent);
+    fixture.componentRef.setInput('partida', criarPartida());
+    fixture.componentRef.setInput('pontuacao', { jogador: 0, computador: 0 });
+
+    const tipo = fixture.componentInstance.obterTipoEmbarcacaoJogador(new Coordenada('A', 1));
+
+    expect(tipo).toBe(TipoEmbarcacao.Destroyer);
+  });
 });
 
 function criarPartida(): Partida {

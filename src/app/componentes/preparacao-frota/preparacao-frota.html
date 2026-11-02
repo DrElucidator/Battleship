@@ -38,6 +38,7 @@
                 {{ linha.rotulo }}
               </th>
               @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
+                @let tipoEmbarcacao = obterTipoEmbarcacaoNaCoordenada(coordenada);
                 <td class="p-0">
                   <button
                     type="button"
@@ -50,8 +51,16 @@
                     "
                     (click)="posicionarEmbarcacao(coordenada)"
                   >
-                    @if (estaCoordenadaOcupada(coordenada)) {
-                      <svg lucideShip class="size-4" aria-hidden="true"></svg>
+                    @if (tipoEmbarcacao === tiposEmbarcacao.PortaAvioes) {
+                      <svg lucidePlane class="size-4" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Encouracado) {
+                      <svg lucideLandmark class="size-4" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Cruzador) {
+                      <svg lucideNavigation class="size-4" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Submarino) {
+                      <svg lucideWaves class="size-4" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Destroyer) {
+                      <svg lucideBomb class="size-4" aria-hidden="true"></svg>
                     } @else {
                       {{ coordenada.paraTexto() }}
                     }
@@ -76,16 +85,35 @@
             <div class="flex items-center justify-between gap-2">
               <button
                 type="button"
-                class="min-w-0 flex-1 rounded-md px-1 py-1 text-left transition hover:text-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
+                class="flex min-w-0 flex-1 items-center rounded-md px-1 py-1 text-left transition hover:text-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
                 [class.text-agua]="embarcacaoSelecionada() === embarcacao.tipo"
                 [attr.aria-pressed]="embarcacaoSelecionada() === embarcacao.tipo"
                 [disabled]="estaEmbarcacaoPosicionada(embarcacao.tipo)"
                 (click)="selecionarEmbarcacao(embarcacao.tipo)"
               >
-                <span class="block truncate font-medium">{{
-                  obterNomeEmbarcacao(embarcacao.tipo)
-                }}</span>
-                <span class="block text-xs text-texto/65"> {{ embarcacao.tamanho }} posições </span>
+                <span
+                  class="mr-2 inline-flex size-7 items-center justify-center rounded-md bg-embarcacao/12 text-embarcacao"
+                >
+                  @if (embarcacao.tipo === tiposEmbarcacao.PortaAvioes) {
+                    <svg lucidePlane class="size-4" aria-hidden="true"></svg>
+                  } @else if (embarcacao.tipo === tiposEmbarcacao.Encouracado) {
+                    <svg lucideLandmark class="size-4" aria-hidden="true"></svg>
+                  } @else if (embarcacao.tipo === tiposEmbarcacao.Cruzador) {
+                    <svg lucideNavigation class="size-4" aria-hidden="true"></svg>
+                  } @else if (embarcacao.tipo === tiposEmbarcacao.Submarino) {
+                    <svg lucideWaves class="size-4" aria-hidden="true"></svg>
+                  } @else {
+                    <svg lucideBomb class="size-4" aria-hidden="true"></svg>
+                  }
+                </span>
+                <span class="min-w-0">
+                  <span class="block truncate font-medium">{{
+                    obterNomeEmbarcacao(embarcacao.tipo)
+                  }}</span>
+                  <span class="block text-xs text-texto/65">
+                    {{ embarcacao.tamanho }} posições
+                  </span>
+                </span>
               </button>
 
               @if (estaEmbarcacaoPosicionada(embarcacao.tipo)) {

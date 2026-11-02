@@ -10,8 +10,12 @@ import {
 import {
   LucideCircleX,
   LucideCrosshair,
+  LucideBomb,
+  LucideLandmark,
   LucideLoaderCircle,
   LucideMedal,
+  LucideNavigation,
+  LucidePlane,
   LucideRotateCcw,
   LucideShip,
   LucideSwords,
@@ -42,8 +46,12 @@ interface UltimaJogada {
   imports: [
     LucideCircleX,
     LucideCrosshair,
+    LucideBomb,
+    LucideLandmark,
     LucideLoaderCircle,
     LucideMedal,
+    LucideNavigation,
+    LucidePlane,
     LucideRotateCcw,
     LucideShip,
     LucideSwords,
@@ -60,6 +68,7 @@ export class BatalhaComponent implements OnDestroy {
   readonly resultadoFinalizado = output<ResultadoPartida>();
   readonly novaPartidaSolicitada = output<void>();
   readonly turnos = TurnoPartida;
+  readonly tiposEmbarcacao = TipoEmbarcacao;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);
@@ -134,6 +143,14 @@ export class BatalhaComponent implements OnDestroy {
 
   possuiEmbarcacaoJogador(coordenada: Coordenada): boolean {
     return this.coordenadasJogadorOcupadas().has(coordenada.paraTexto());
+  }
+
+  obterTipoEmbarcacaoJogador(coordenada: Coordenada): TipoEmbarcacao | undefined {
+    return this.partida()
+      .tabuleiroJogador.obterEmbarcacoes()
+      .find((embarcacao) =>
+        embarcacao.posicoes.some((posicao) => posicao.paraTexto() === coordenada.paraTexto()),
+      )?.tipo;
   }
 
   obterDescricaoResultado(resultado: ResultadoAtaque): string {

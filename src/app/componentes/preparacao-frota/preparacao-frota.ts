@@ -1,5 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, output, signal } from '@angular/core';
-import { LucideAnchor, LucideRotateCw, LucideShip } from '@lucide/angular';
+import {
+  LucideAnchor,
+  LucideBomb,
+  LucideLandmark,
+  LucideNavigation,
+  LucidePlane,
+  LucideRotateCw,
+  LucideWaves,
+} from '@lucide/angular';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { Embarcacao } from '../../dominio/embarcacao';
 import { frotaOficial, TipoEmbarcacao } from '../../dominio/frota';
@@ -13,7 +21,15 @@ interface LinhaDoTabuleiro {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideAnchor, LucideRotateCw, LucideShip],
+  imports: [
+    LucideAnchor,
+    LucideBomb,
+    LucideLandmark,
+    LucideNavigation,
+    LucidePlane,
+    LucideRotateCw,
+    LucideWaves,
+  ],
   selector: 'app-preparacao-frota',
   styleUrl: './preparacao-frota.css',
   templateUrl: './preparacao-frota.html',
@@ -25,6 +41,7 @@ export class PreparacaoFrotaComponent {
   readonly mensagem = signal('Selecione uma embarcação para começar.');
   readonly embarcacoesPosicionadas = signal<readonly Embarcacao[]>([]);
   readonly frota = frotaOficial;
+  readonly tiposEmbarcacao = TipoEmbarcacao;
   readonly orientacoes = Orientacao;
   private readonly tabuleiro = new Tabuleiro();
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
@@ -78,6 +95,12 @@ export class PreparacaoFrotaComponent {
 
   estaCoordenadaOcupada(coordenada: Coordenada): boolean {
     return this.coordenadasOcupadas().has(coordenada.paraTexto());
+  }
+
+  obterTipoEmbarcacaoNaCoordenada(coordenada: Coordenada): TipoEmbarcacao | undefined {
+    return this.embarcacoesPosicionadas().find((embarcacao) =>
+      embarcacao.posicoes.some((posicao) => posicao.paraTexto() === coordenada.paraTexto()),
+    )?.tipo;
   }
 
   estaEmbarcacaoPosicionada(tipo: TipoEmbarcacao): boolean {

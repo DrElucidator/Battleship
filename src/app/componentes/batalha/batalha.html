@@ -71,6 +71,7 @@
               <th scope="row">{{ linha.rotulo }}</th>
               @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
                 @let resultado = obterResultadoAtaque(partida().tabuleiroJogador, coordenada);
+                @let tipoEmbarcacao = obterTipoEmbarcacaoJogador(coordenada);
                 <td>
                   <span
                     class="celula-batalha"
@@ -89,8 +90,16 @@
                       <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
                     } @else if (resultado) {
                       <svg lucideCrosshair class="size-3.5" aria-hidden="true"></svg>
-                    } @else if (possuiEmbarcacaoJogador(coordenada)) {
-                      <svg lucideShip class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.PortaAvioes) {
+                      <svg lucidePlane class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Encouracado) {
+                      <svg lucideLandmark class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Cruzador) {
+                      <svg lucideNavigation class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Submarino) {
+                      <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
+                    } @else if (tipoEmbarcacao === tiposEmbarcacao.Destroyer) {
+                      <svg lucideBomb class="size-3.5" aria-hidden="true"></svg>
                     } @else {
                       {{ coordenada.paraTexto() }}
                     }
