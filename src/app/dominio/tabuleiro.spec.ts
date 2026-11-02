@@ -1,3 +1,4 @@
+import { ResultadoAtaque } from './ataque';
 import { Coordenada } from './coordenada';
 import { Embarcacao } from './embarcacao';
 import { TipoEmbarcacao } from './frota';
@@ -72,5 +73,52 @@ describe('Tabuleiro', () => {
     tabuleiro.posicionarEmbarcacao(destroyerAdjacente);
 
     expect(tabuleiro.obterEmbarcacoes()).toEqual([cruzador, destroyerAdjacente]);
+  });
+
+  it('deve informar água ao atacar uma posição sem embarcação', () => {
+    const tabuleiro = new Tabuleiro();
+
+    const resultado = tabuleiro.atacar(new Coordenada('A', 1));
+
+    expect(resultado).toBe(ResultadoAtaque.Agua);
+    expect(tabuleiro.obterAtaques()).toHaveLength(1);
+  });
+
+  it('deve informar acerto ao atingir uma embarcação sem destruí-la', () => {
+    const tabuleiro = new Tabuleiro();
+    const destroyer = new Embarcacao(
+      TipoEmbarcacao.Destroyer,
+      new Coordenada('B', 2),
+      Orientacao.Horizontal,
+    );
+    tabuleiro.posicionarEmbarcacao(destroyer);
+
+    const resultado = tabuleiro.atacar(new Coordenada('B', 2));
+
+    expect(resultado).toBe(ResultadoAtaque.Acerto);
+  });
+
+  it('deve informar embarcação destruída ao atingir sua última posição intacta', () => {
+    const tabuleiro = new Tabuleiro();
+    const destroyer = new Embarcacao(
+      TipoEmbarcacao.Destroyer,
+      new Coordenada('B', 2),
+      Orientacao.Horizontal,
+    );
+    tabuleiro.posicionarEmbarcacao(destroyer);
+    tabuleiro.atacar(new Coordenada('B', 2));
+
+    const resultado = tabuleiro.atacar(new Coordenada('B', 3));
+
+    expect(resultado).toBe(ResultadoAtaque.EmbarcacaoDestruida);
+  });
+
+  it('deve rejeitar ataque repetido e preservar o histórico', () => {
+    const tabuleiro = new Tabuleiro();
+    const coordenada = new Coordenada('A', 1);
+    tabuleiro.atacar(coordenada);
+
+    expect(() => tabuleiro.atacar(coordenada)).toThrow('A coordenada já foi atacada.');
+    expect(tabuleiro.obterAtaques()).toHaveLength(1);
   });
 });

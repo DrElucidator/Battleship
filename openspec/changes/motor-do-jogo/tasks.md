@@ -16,10 +16,10 @@
 
 ## 3. Ataques
 
-- [ ] 3.1 Registrar ataque em coordenada ainda não atacada.
-- [ ] 3.2 Retornar água, acerto ou embarcação destruída conforme o estado do tabuleiro.
-- [ ] 3.3 Impedir ataques repetidos sem alterar o histórico.
-- [ ] 3.4 Cobrir cada resultado e caso inválido com testes.
+- [x] 3.1 Registrar ataque em coordenada ainda não atacada.
+- [x] 3.2 Retornar água, acerto ou embarcação destruída conforme o estado do tabuleiro.
+- [x] 3.3 Impedir ataques repetidos sem alterar o histórico.
+- [x] 3.4 Cobrir cada resultado e caso inválido com testes.
 
 ## 4. Verificação
 
