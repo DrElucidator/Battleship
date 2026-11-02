@@ -61,6 +61,20 @@ export class Tabuleiro {
     return [...this.ataques];
   }
 
+  todasEmbarcacoesForamDestruidas(): boolean {
+    if (this.embarcacoes.length === 0) {
+      return false;
+    }
+
+    const coordenadasAtacadas = new Set(
+      this.ataques.map((ataque) => ataque.coordenada.paraTexto()),
+    );
+
+    return this.embarcacoes.every((embarcacao) =>
+      embarcacao.posicoes.every((posicao) => coordenadasAtacadas.has(posicao.paraTexto())),
+    );
+  }
+
   private possuiPosicaoOcupada(embarcacao: Embarcacao): boolean {
     const posicoesOcupadas = new Set(
       this.embarcacoes.flatMap((item) => item.posicoes.map((posicao) => posicao.paraTexto())),

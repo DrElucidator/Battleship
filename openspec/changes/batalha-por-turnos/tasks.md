@@ -2,10 +2,10 @@
 
 ## 1. Domínio da partida
 
-- [ ] 1.1 Criar os tipos de turno e resultado da partida.
+- [x] 1.1 Criar os tipos de turno e resultado da partida.
 - [x] 1.2 Criar a fábrica de frota adversária com aleatoriedade controlável.
-- [ ] 1.3 Criar `Partida` para coordenar ataques, turnos e fim de jogo.
-- [ ] 1.4 Cobrir ataques válidos, repetidos, turno inválido, vitória e derrota com testes unitários.
+- [x] 1.3 Criar `Partida` para coordenar ataques, turnos e fim de jogo.
+- [x] 1.4 Cobrir ataques válidos, repetidos, turno inválido, vitória e derrota com testes unitários.
 
 ## 2. Transição da preparação
 
