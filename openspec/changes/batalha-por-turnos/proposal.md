@@ -9,7 +9,7 @@ A frota do jogador já pode ser preparada visualmente, mas a partida ainda não 
 - Cria uma partida que mantém tabuleiros independentes do jogador e do computador.
 - Posiciona a frota adversária automaticamente, respeitando limites e sobreposição.
 - Alterna turnos apenas após água: acertos mantêm a vez do atacante, conforme a regra clássica do jogo.
-- Faz o computador priorizar coordenadas vizinhas a acertos ainda não resolvidos.
+- Faz o computador priorizar coordenadas vizinhas a acertos isolados e continuar na mesma linha ou coluna após confirmar dois acertos alinhados.
 - Exibe ataques, água, acertos e embarcações destruídas sem revelar a frota inimiga antes do acerto.
 - Detecta vitória ou derrota quando toda a frota de um lado for destruída.
 

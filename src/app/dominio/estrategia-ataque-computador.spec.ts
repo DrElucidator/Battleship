@@ -26,6 +26,20 @@ describe('EstrategiaAtaqueComputador', () => {
 
     expect(coordenada.paraTexto()).toBe('A1');
   });
+
+  it('deve continuar na mesma linha após dois acertos consecutivos', () => {
+    const tabuleiro = new Tabuleiro();
+    tabuleiro.posicionarEmbarcacao(
+      new Embarcacao(TipoEmbarcacao.Cruzador, new Coordenada('D', 4), Orientacao.Horizontal),
+    );
+    tabuleiro.atacar(new Coordenada('D', 4));
+    tabuleiro.atacar(new Coordenada('D', 5));
+    const estrategia = new EstrategiaAtaqueComputador();
+
+    const coordenada = estrategia.escolherCoordenada(tabuleiro, () => 0);
+
+    expect(coordenada.paraTexto()).toBe('D6');
+  });
 });
 
 function criarTabuleiroComDestroyer(): Tabuleiro {
