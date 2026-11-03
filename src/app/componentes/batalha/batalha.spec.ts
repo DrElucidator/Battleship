@@ -65,24 +65,39 @@ describe('BatalhaComponent', () => {
     vi.useRealTimers();
   });
 
-  it('deve proteger os tabuleiros durante a troca de turno local', () => {
+  it('deve manter os tabuleiros fixos e alternar o turno local automaticamente', () => {
     const fixture = TestBed.createComponent(BatalhaComponent);
     fixture.componentRef.setInput('partida', criarPartida());
     fixture.componentRef.setInput('pontuacao', { jogadorUm: 0, jogadorDois: 0 });
     fixture.componentRef.setInput('modo', ModoPartida.Local);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.trocaPendente()).toBe(ParticipantePartida.JogadorUm);
+    fixture.componentInstance.atacarTabuleiro(ParticipantePartida.JogadorDois, new Coordenada('B', 1));
 
-    fixture.componentInstance.confirmarTrocaDeJogador();
-    fixture.componentInstance.atacarAdversario(new Coordenada('B', 1));
-
-    expect(fixture.componentInstance.trocaPendente()).toBe(ParticipantePartida.JogadorDois);
-    expect(fixture.componentInstance.jogadorVisivel()).toBe(ParticipantePartida.JogadorUm);
-
-    fixture.componentInstance.confirmarTrocaDeJogador();
-
+    expect(fixture.componentInstance.turnoAtual()).toBe(ParticipantePartida.JogadorDois);
     expect(fixture.componentInstance.jogadorVisivel()).toBe(ParticipantePartida.JogadorDois);
+    expect(
+      fixture.componentInstance.podeAtacarTabuleiro(
+        ParticipantePartida.JogadorUm,
+        new Coordenada('A', 1),
+      ),
+    ).toBe(true);
+  });
+
+  it('deve contabilizar a célula que afunda uma embarcação como acerto', () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(BatalhaComponent);
+    const partida = criarPartida();
+    fixture.componentRef.setInput('partida', partida);
+    fixture.componentRef.setInput('pontuacao', { jogadorUm: 0, jogadorDois: 0 });
+
+    fixture.componentInstance.atacarAdversario(new Coordenada('B', 1));
+    vi.advanceTimersByTime(1_000);
+    fixture.componentInstance.atacarAdversario(new Coordenada('B', 2));
+
+    expect(fixture.componentInstance.resumoJogador().acertos).toBe(2);
+    fixture.destroy();
+    vi.useRealTimers();
   });
 });
 

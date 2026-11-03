@@ -24,6 +24,7 @@ export class StatusFrotaComponent {
   readonly estados = input.required<readonly EstadoEmbarcacao[]>();
   readonly ocultarNaoAfundadas = input(false);
   readonly titulo = input.required<string>();
+  readonly compacta = input(false);
   readonly itens = computed(() => this.estados().map((estado) => this.criarItem(estado)));
 
   private criarItem(estado: EstadoEmbarcacao): ItemFrota {

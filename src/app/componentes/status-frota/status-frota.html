@@ -1,4 +1,8 @@
-<section class="status-frota" [attr.aria-label]="titulo()">
+<section
+  class="status-frota"
+  [class.status-frota--compacta]="compacta()"
+  [attr.aria-label]="titulo()"
+>
   <h4>{{ titulo() }}</h4>
 
   <ul>

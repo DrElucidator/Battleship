@@ -11,18 +11,14 @@ import {
 import {
   LucideCrosshair,
   LucideLoaderCircle,
-  LucideMedal,
   LucideRotateCcw,
   LucideShip,
-  LucideSwords,
   LucideTimer,
   LucideTrophy,
   LucideWaves,
 } from '@lucide/angular';
 import { Subscription, interval } from 'rxjs';
 import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
-import { StatusFrotaComponent } from '../status-frota/status-frota';
-import { TrocaJogadorComponent } from '../troca-jogador/troca-jogador';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { EstrategiaAtaqueComputador } from '../../dominio/estrategia-ataque-computador';
@@ -43,21 +39,22 @@ interface UltimaJogada {
   readonly coordenada: Coordenada;
 }
 
+interface ItemResumoFrota {
+  readonly nome: string;
+  readonly situacao: 'Intacta' | 'Atingida' | 'Afundada';
+}
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LucideCrosshair,
     LucideLoaderCircle,
-    LucideMedal,
     LucideRotateCcw,
     LucideShip,
-    LucideSwords,
     LucideTimer,
     LucideTrophy,
     LucideWaves,
     IconeEmbarcacaoComponent,
-    StatusFrotaComponent,
-    TrocaJogadorComponent,
   ],
   selector: 'app-batalha',
   styleUrl: './batalha.css',
@@ -69,6 +66,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   readonly modo = input<ModoPartida>(ModoPartida.Computador);
   readonly resultadoFinalizado = output<ResultadoBatalha>();
   readonly novaPartidaSolicitada = output<void>();
+  readonly inicioSolicitado = output<void>();
   readonly participantes = ParticipantePartida;
   readonly modos = ModoPartida;
   readonly obterAdversario = obterAdversario;
@@ -76,7 +74,6 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);
   readonly jogadorVisivel = signal(ParticipantePartida.JogadorUm);
-  readonly trocaPendente = signal<ParticipantePartida | null>(null);
   readonly segundosRestantes = signal(90);
   readonly duracaoPartidaSegundos = signal(0);
   readonly ultimaJogada = signal<UltimaJogada | null>(null);
@@ -114,6 +111,12 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   readonly tabuleiroComputador = computed(() =>
     this.partida().obterTabuleiro(obterAdversario(this.jogadorVisivel())),
   );
+  readonly tabuleiroJogadorUm = computed(() =>
+    this.partida().obterTabuleiro(ParticipantePartida.JogadorUm),
+  );
+  readonly tabuleiroJogadorDois = computed(() =>
+    this.partida().obterTabuleiro(ParticipantePartida.JogadorDois),
+  );
   readonly resumoJogador = computed(() => this.calcularResumo(this.jogadorVisivel()));
   readonly resumoComputador = computed(() =>
     this.calcularResumo(obterAdversario(this.jogadorVisivel())),
@@ -125,6 +128,14 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   readonly estadosFrotaComputador = computed<readonly EstadoEmbarcacao[]>(() => {
     this.revisao();
     return this.tabuleiroComputador().obterEstadosEmbarcacoes();
+  });
+  readonly estadosFrotaJogadorUm = computed<readonly EstadoEmbarcacao[]>(() => {
+    this.revisao();
+    return this.tabuleiroJogadorUm().obterEstadosEmbarcacoes();
+  });
+  readonly estadosFrotaJogadorDois = computed<readonly EstadoEmbarcacao[]>(() => {
+    this.revisao();
+    return this.tabuleiroJogadorDois().obterEstadosEmbarcacoes();
   });
   readonly vencedor = computed<ParticipantePartida | undefined>(() => {
     const resultado = this.resultadoAtual();
@@ -143,6 +154,10 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     const vencedor = this.vencedor();
     return vencedor ? this.calcularResumo(vencedor) : undefined;
   });
+  readonly resumoPerdedor = computed(() => {
+    const vencedor = this.vencedor();
+    return vencedor ? this.calcularResumo(obterAdversario(vencedor)) : undefined;
+  });
   readonly coordenadasJogadorOcupadas = computed(() => {
     this.revisao();
     return new Set(
@@ -153,15 +168,19 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   });
 
   atacarAdversario(coordenada: Coordenada): void {
-    if (!this.podeAtacarAdversario(coordenada)) {
+    this.atacarTabuleiro(obterAdversario(this.jogadorVisivel()), coordenada);
+  }
+
+  atacarTabuleiro(tabuleiroAtacado: ParticipantePartida, coordenada: Coordenada): void {
+    if (!this.podeAtacarTabuleiro(tabuleiroAtacado, coordenada)) {
       return;
     }
 
     try {
-      const atacante = this.jogadorVisivel();
+      const atacante = obterAdversario(tabuleiroAtacado);
       const jogadaJogador = this.partida().atacar(atacante, coordenada);
       this.pausarCronometro();
-      this.registrarUltimaJogada(obterAdversario(atacante), coordenada);
+      this.registrarUltimaJogada(tabuleiroAtacado, coordenada);
       this.mensagem.set(
         `${this.obterNomeParticipante(atacante)} atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
       );
@@ -176,7 +195,12 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       }
 
       if (this.modo() === ModoPartida.Local) {
-        this.solicitarTrocaDeJogador(obterAdversario(atacante));
+        const proximoJogador = this.partida().turnoAtual;
+        this.jogadorVisivel.set(proximoJogador);
+        this.mensagem.set(
+          `${this.obterNomeParticipante(atacante)} atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}. Turno do ${this.obterNomeParticipante(proximoJogador)}.`,
+        );
+        this.iniciarCronometroJogador();
         return;
       }
 
@@ -189,11 +213,17 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   }
 
   podeAtacarAdversario(coordenada: Coordenada): boolean {
+    return this.podeAtacarTabuleiro(obterAdversario(this.jogadorVisivel()), coordenada);
+  }
+
+  podeAtacarTabuleiro(tabuleiroAtacado: ParticipantePartida, coordenada: Coordenada): boolean {
+    const atacante = obterAdversario(tabuleiroAtacado);
+
     return (
       !this.partida().encerrada &&
       !this.processamentoComputador() &&
-      this.turnoAtual() === this.jogadorVisivel() &&
-      !this.obterResultadoAtaque(this.tabuleiroComputador(), coordenada)
+      this.turnoAtual() === atacante &&
+      !this.obterResultadoAtaque(this.partida().obterTabuleiro(tabuleiroAtacado), coordenada)
     );
   }
 
@@ -202,6 +232,34 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     return tabuleiro
       .obterAtaques()
       .find((ataque) => ataque.coordenada.paraTexto() === coordenada.paraTexto())?.resultado;
+  }
+
+  possuiEmbarcacao(participante: ParticipantePartida, coordenada: Coordenada): boolean {
+    return this.partida()
+      .obterTabuleiro(participante)
+      .obterEmbarcacoes()
+      .some((embarcacao) => embarcacao.posicoes.some((posicao) => posicao.paraTexto() === coordenada.paraTexto()));
+  }
+
+  obterTipoEmbarcacao(participante: ParticipantePartida, coordenada: Coordenada): TipoEmbarcacao | undefined {
+    return this.partida()
+      .obterTabuleiro(participante)
+      .obterEmbarcacoes()
+      .find((embarcacao) => embarcacao.posicoes.some((posicao) => posicao.paraTexto() === coordenada.paraTexto()))?.tipo;
+  }
+
+  obterResumoFrota(participante: ParticipantePartida): readonly ItemResumoFrota[] {
+    return this.partida()
+      .obterTabuleiro(participante)
+      .obterEstadosEmbarcacoes()
+      .map((estado) => ({
+        nome: this.obterNomeEmbarcacao(estado.tipo),
+        situacao: estado.afundada
+          ? 'Afundada'
+          : estado.posicoesAtingidas.length > 0
+            ? 'Atingida'
+            : 'Intacta',
+      }));
   }
 
   possuiEmbarcacaoJogador(coordenada: Coordenada): boolean {
@@ -241,6 +299,10 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     this.novaPartidaSolicitada.emit();
   }
 
+  solicitarInicio(): void {
+    this.inicioSolicitado.emit();
+  }
+
   foiUltimaJogada(tabuleiroAtacado: ParticipantePartida, coordenada: Coordenada): boolean {
     const ultimaJogada = this.ultimaJogada();
 
@@ -259,29 +321,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    if (this.modo() === ModoPartida.Local) {
-      this.solicitarTrocaDeJogador(ParticipantePartida.JogadorUm);
-      return;
-    }
-
     this.iniciarCronometroJogador();
   }
 
   private atualizarEstado(): void {
     this.revisao.update((valor) => valor + 1);
-  }
-
-  confirmarTrocaDeJogador(): void {
-    const proximoJogador = this.trocaPendente();
-
-    if (!proximoJogador) {
-      return;
-    }
-
-    this.jogadorVisivel.set(proximoJogador);
-    this.trocaPendente.set(null);
-    this.mensagem.set(`${this.obterNomeParticipante(proximoJogador)}, escolha uma coordenada.`);
-    this.iniciarCronometroJogador();
   }
 
   obterNomeParticipante(participante: ParticipantePartida): string {
@@ -290,6 +334,54 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     }
 
     return participante === ParticipantePartida.JogadorUm ? 'Jogador 1' : 'Jogador 2';
+  }
+
+  obterTituloFrota(participante: ParticipantePartida): string {
+    if (this.modo() === ModoPartida.Computador && participante === ParticipantePartida.JogadorUm) {
+      return 'Sua frota';
+    }
+
+    return `Frota do ${this.obterNomeParticipante(participante)}`;
+  }
+
+  obterTituloAtaque(participante: ParticipantePartida): string {
+    if (this.modo() === ModoPartida.Computador && participante === ParticipantePartida.JogadorDois) {
+      return 'Ataque o computador';
+    }
+
+    return `Ataque o ${this.obterNomeParticipante(participante)}`;
+  }
+
+  obterTituloTabuleiroAdversario(participante: ParticipantePartida): string {
+    if (this.modo() === ModoPartida.Computador && participante === ParticipantePartida.JogadorDois) {
+      return 'Tabuleiro adversário';
+    }
+
+    return `Tabuleiro do ${this.obterNomeParticipante(participante)}`;
+  }
+
+  obterTituloVitoria(): string {
+    const vencedor = this.vencedor();
+
+    if (!vencedor) {
+      return '';
+    }
+
+    if (this.modo() === ModoPartida.Computador) {
+      return vencedor === ParticipantePartida.JogadorUm ? 'Você venceu' : 'O computador venceu';
+    }
+
+    return `${this.obterNomeParticipante(vencedor)} venceu`;
+  }
+
+  obterRotuloAcertos(participante: ParticipantePartida): string {
+    if (this.modo() === ModoPartida.Computador) {
+      return participante === ParticipantePartida.JogadorUm
+        ? 'Seus acertos'
+        : 'Acertos do computador';
+    }
+
+    return `Acertos do ${this.obterNomeParticipante(participante)}`;
   }
 
   private registrarUltimaJogada(
@@ -356,7 +448,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     this.iniciarCronometroJogador();
   }
 
-  private obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
+  obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
     const nomes: Record<TipoEmbarcacao, string> = {
       [TipoEmbarcacao.PortaAvioes]: 'Porta-aviões',
       [TipoEmbarcacao.Encouracado]: 'Encouraçado',
@@ -368,7 +460,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     return nomes[tipo];
   }
 
-  private calcularResumo(atacante: ParticipantePartida): ResumoParticipantePartida {
+  calcularResumo(atacante: ParticipantePartida): ResumoParticipantePartida {
     this.revisao();
     const jogadas = this.partida()
       .obterJogadas()
@@ -377,7 +469,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     return {
       ataques: jogadas.length,
       agua: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Agua).length,
-      acertos: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Acerto).length,
+      acertos: jogadas.filter(
+        (jogada) =>
+          jogada.resultado === ResultadoAtaque.Acerto ||
+          jogada.resultado === ResultadoAtaque.EmbarcacaoDestruida,
+      ).length,
       embarcacoesDestruidas: jogadas.filter(
         (jogada) => jogada.resultado === ResultadoAtaque.EmbarcacaoDestruida,
       ).length,
@@ -437,11 +533,6 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   private pausarCronometro(): void {
     this.temporizadorTurno?.unsubscribe();
     this.temporizadorTurno = undefined;
-  }
-
-  private solicitarTrocaDeJogador(participante: ParticipantePartida): void {
-    this.pausarCronometro();
-    this.trocaPendente.set(participante);
   }
 
   private organizarLinhasDoTabuleiro(): readonly LinhaDoTabuleiro[] {

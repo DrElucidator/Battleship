@@ -50,3 +50,22 @@
   color: var(--color-fundo) !important;
   background-color: var(--color-afundado) !important;
 }
+
+.status-frota--compacta {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.status-frota--compacta ul {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.status-frota--compacta li {
+  grid-template-columns: 0.9rem minmax(0, 1fr);
+  gap: 0.25rem;
+  padding: 0.25rem 0.3rem;
+  font-size: 0.64rem;
+}
+

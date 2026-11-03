@@ -6,6 +6,7 @@ import { Embarcacao } from '../../dominio/embarcacao';
 import { frotaOficial, TipoEmbarcacao } from '../../dominio/frota';
 import { Orientacao } from '../../dominio/orientacao';
 import { Tabuleiro } from '../../dominio/tabuleiro';
+import { FabricaFrotaComputador } from '../../dominio/fabrica-frota-computador';
 
 interface LinhaDoTabuleiro {
   readonly rotulo: LinhaTabuleiro;
@@ -29,7 +30,8 @@ export class PreparacaoFrotaComponent {
   readonly embarcacoesPosicionadas = signal<readonly Embarcacao[]>([]);
   readonly frota = frotaOficial;
   readonly orientacoes = Orientacao;
-  private readonly tabuleiro = new Tabuleiro();
+  private tabuleiro = new Tabuleiro();
+  private readonly fabricaFrota = new FabricaFrotaComputador();
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
   readonly linhasDoTabuleiro = this.organizarLinhasDoTabuleiro();
   readonly coordenadasOcupadas = computed(
@@ -105,6 +107,13 @@ export class PreparacaoFrotaComponent {
     this.mensagem.set(
       `${this.obterNomeEmbarcacao(tipo)} removido. Escolha uma nova coordenada inicial.`,
     );
+  }
+
+  posicionarFrotaAutomaticamente(): void {
+    this.tabuleiro = this.fabricaFrota.criar();
+    this.embarcacoesPosicionadas.set(this.tabuleiro.obterEmbarcacoes());
+    this.embarcacaoSelecionada.set(null);
+    this.mensagem.set('A frota foi posicionada automaticamente. Você pode reposicionar qualquer embarcação.');
   }
 
   iniciarBatalha(): void {

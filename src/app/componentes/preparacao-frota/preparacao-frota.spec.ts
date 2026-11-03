@@ -104,6 +104,16 @@ describe('PreparacaoFrotaComponent', () => {
     expect(componente.quantidadeDeEmbarcacoesRestantes()).toBe(0);
     expect(tabuleiroIniciado?.obterEmbarcacoes()).toHaveLength(5);
   });
+
+  it('deve posicionar toda a frota automaticamente', () => {
+    const componente = criarComponente();
+
+    componente.posicionarFrotaAutomaticamente();
+
+    expect(componente.frotaEstaCompleta()).toBe(true);
+    expect(componente.embarcacoesPosicionadas()).toHaveLength(5);
+    expect(componente.mensagem()).toContain('posicionada automaticamente');
+  });
 });
 
 function criarComponente(): PreparacaoFrotaComponent {

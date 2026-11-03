@@ -2,6 +2,32 @@
   display: block;
 }
 
+.batalha {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.cabecalho-batalha {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cabecalho-batalha > div > p {
+  color: var(--color-agua);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.cabecalho-batalha h2 {
+  margin-top: 0.15rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
 .tabuleiro {
   width: 100%;
   border-collapse: separate;
@@ -28,7 +54,7 @@
 .celula-batalha {
   display: flex;
   width: 100%;
-  min-height: clamp(1.45rem, 3.5vw, 2.1rem);
+  min-height: clamp(1.75rem, 3vw, 2.45rem);
   aspect-ratio: 1;
   align-items: center;
   justify-content: center;
@@ -47,7 +73,6 @@
 button.celula-batalha:not(:disabled):hover {
   border-color: var(--color-agua);
   background-color: color-mix(in srgb, var(--color-agua) 18%, var(--color-fundo));
-  transform: translateY(-1px);
 }
 
 button.celula-batalha:disabled {
@@ -154,46 +179,101 @@ button.celula-batalha:focus-visible {
   font-weight: 800;
 }
 
-.resumo-batalha {
-  align-self: start;
+.indicador-turno {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-celula-borda);
+  border-radius: 0.65rem;
+  background-color: var(--color-celula);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.tabuleiros-batalha {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 20rem minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.85rem;
+}
+.painel-tabuleiro { display: grid; place-items: center; border: 1px solid var(--color-celula-borda); border-radius: 0.75rem; background-color: var(--color-celula); padding: 0.55rem; }
+.painel-tabuleiro__titulo { display: flex; width: 100%; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; font-size: 0.9rem; font-weight: 700; }
+
+.centro-comando {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
   border: 1px solid var(--color-celula-borda);
   border-radius: 0.75rem;
   background-color: var(--color-celula);
-  padding: 1rem;
+  padding: 0.65rem;
 }
 
-.resumo-batalha__grupo {
-  border-top: 1px solid var(--color-celula-borda);
-  padding-top: 0.75rem;
+.centro-comando > section {
+  border: 1px solid var(--color-celula-borda);
+  border-radius: 0.6rem;
+  background-color: var(--color-fundo);
+  padding: 0.6rem;
 }
 
-.resumo-batalha__grupo h4 {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.resumo-batalha__grupo dl {
-  display: grid;
-  gap: 0.4rem;
-  margin-top: 0.65rem;
-  font-size: 0.75rem;
-}
-
-.resumo-batalha__grupo dl div {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.resumo-batalha__grupo dt {
+.centro-comando span {
+  display: block;
   color: color-mix(in srgb, var(--color-texto) 65%, transparent);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
 }
 
-.resumo-batalha__grupo dd {
-  font-weight: 700;
+.centro-comando__turnos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
 }
+
+.centro-comando__turnos article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.22rem 0.35rem;
+  border: 1px solid var(--color-celula-borda);
+  border-radius: 0.6rem;
+  background-color: var(--color-fundo);
+  padding: 0.55rem;
+}
+
+.centro-comando__turnos article > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.64rem; }
+.centro-comando__turnos article > strong { grid-column: 1 / -1; font-size: 0.7rem; }
+.centro-comando__turnos .jogador-ativo { border-color: var(--color-agua); background-color: color-mix(in srgb, var(--color-agua) 14%, var(--color-fundo)); }
+
+.centro-comando__log { min-height: 4.75rem; margin-top: auto; }
+.centro-comando__log p { display: -webkit-box; overflow: hidden; margin-top: 0.35rem; -webkit-box-orient: vertical; -webkit-line-clamp: 3; font-size: 0.73rem; line-height: 1.35; }
+
+.centro-comando__placar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
+.centro-comando__placar > span { grid-column: 1 / -1; }
+.centro-comando__placar strong { font-size: 0.67rem; }
+.centro-comando__placar p, .centro-comando__placar small { display: block; margin-top: 0.25rem; font-size: 0.63rem; line-height: 1.35; }
+.centro-comando__placar small { color: color-mix(in srgb, var(--color-texto) 65%, transparent); }
+
+.centro-comando__frotas { display: grid; gap: 0.45rem; }
+.centro-comando__frotas > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.35rem; }
+.centro-comando__frotas > div > strong { width: 1rem; font-size: 0.65rem; }
+.centro-comando__frotas small { color: color-mix(in srgb, var(--color-texto) 74%, transparent); font-size: 0.6rem; white-space: nowrap; }
+.centro-comando__frotas small b { display: block; font-size: 0.57rem; }
+.centro-comando__frotas .frota--atingida { color: var(--color-acerto); }
+.centro-comando__frotas .frota--afundada { color: var(--color-afundado); }
+
+.botao-resultado, .botao-secundario { display: inline-flex; align-items: center; gap: 0.45rem; border-radius: 0.55rem; padding: 0.55rem 0.8rem; font-size: 0.85rem; font-weight: 700; transition: background-color 150ms ease, border-color 150ms ease; }
+.botao-resultado { border: 1px solid currentColor; }
+.botao-resultado:hover { background-color: rgb(255 255 255 / 20%); }
+.botao-secundario { border: 1px solid color-mix(in srgb, currentColor 70%, transparent); background-color: rgb(255 255 255 / 34%); }
+.botao-secundario:hover { background-color: rgb(255 255 255 / 52%); }
+
+.resultado-destruidas { margin-top: 0.85rem; border-radius: 0.55rem; background-color: rgb(255 255 255 / 30%); padding: 0.55rem 0.8rem; font-size: 0.8rem; }
+.acoes-resultado { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1rem; }
 
 @keyframes resultado-entra {
   from {
@@ -237,12 +317,11 @@ button.celula-batalha:focus-visible {
   }
 }
 
-@media (max-width: 1023px) {
-  .resumo-batalha {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+@media (max-width: 1180px) {
+  .tabuleiros-batalha { grid-template-columns: minmax(0, 1fr); max-width: 40rem; margin-inline: auto; }
+  .centro-comando { order: -1; }
+}
 
-  .resumo-batalha > :first-child {
-    grid-column: 1 / -1;
-  }
+@media (max-width: 640px) {
+  .cabecalho-batalha { align-items: start; flex-direction: column; }
 }
