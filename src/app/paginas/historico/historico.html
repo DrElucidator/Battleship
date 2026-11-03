@@ -1,0 +1,34 @@
+<section class="historico" aria-labelledby="titulo-historico">
+  <header class="historico__cabecalho">
+    <div>
+      <svg lucideHistory aria-hidden="true"></svg>
+      <h2 id="titulo-historico">Histórico de partidas</h2>
+    </div>
+    <span>{{ sessao.historico().length }} registradas</span>
+  </header>
+
+  @if (sessao.historico().length === 0) {
+    <section class="historico__vazio">
+      <svg lucideTrophy aria-hidden="true"></svg>
+      <h3>Nenhuma partida concluída</h3>
+      <p>Os resultados aparecerão aqui após o fim de uma batalha.</p>
+    </section>
+  } @else {
+    <div class="historico__lista">
+      @for (registro of sessao.historico(); track registro.id) {
+        <article class="registro-partida">
+          <svg lucideTrophy class="registro-partida__icone" aria-hidden="true"></svg>
+          <div class="registro-partida__resultado">
+            <h3>{{ obterTitulo(registro) }}</h3>
+            <p>{{ obterModo(registro) }} · {{ registro.concluidaEm | date: 'dd/MM/yyyy, HH:mm' }}</p>
+          </div>
+          <dl class="registro-partida__dados">
+            <div><dt>J1</dt><dd>{{ registro.resumoJogadorUm.acertos }} acertos</dd></div>
+            <div><dt>J2</dt><dd>{{ registro.resumoJogadorDois.acertos }} acertos</dd></div>
+            <div><dt><svg lucideClock3 aria-hidden="true"/>Duração</dt><dd>{{ registro.duracaoSegundos }} s</dd></div>
+          </dl>
+        </article>
+      }
+    </div>
+  }
+</section>

@@ -1,6 +1,6 @@
 <div class="flex min-h-screen flex-col">
   <header class="border-b border-celula-borda bg-celula/95 shadow-sm backdrop-blur">
-    <div class="mx-auto flex min-h-16 w-full max-w-[84rem] items-center px-4">
+    <div class="mx-auto flex min-h-16 w-full max-w-[84rem] items-center justify-between px-4">
       <button
         type="button"
         class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1 text-left focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-agua"
@@ -10,6 +10,14 @@
         <svg lucideAnchor class="size-7 text-[#223a5b]" aria-hidden="true"></svg>
         <h1 class="text-lg font-bold tracking-tight">{{ nomeJogo }}</h1>
       </button>
+      <a
+        class="grid size-9 place-items-center rounded-lg text-[#223a5b] transition-colors hover:bg-agua/10 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-agua"
+        aria-label="Ver histórico de partidas"
+        title="Histórico de partidas"
+        routerLink="/historico"
+      >
+        <svg lucideHistory class="size-5" aria-hidden="true"></svg>
+      </a>
     </div>
   </header>
 

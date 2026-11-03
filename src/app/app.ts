@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { LucideAnchor } from '@lucide/angular';
+import { LucideAnchor, LucideHistory } from '@lucide/angular';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideAnchor, RouterLink, RouterOutlet],
+  imports: [LucideAnchor, LucideHistory, RouterLink, RouterOutlet],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

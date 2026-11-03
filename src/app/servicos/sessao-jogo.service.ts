@@ -7,6 +7,7 @@ import { ModoPartida, ParticipantePartida } from '../dominio/participante';
 import { Placar, Pontuacao } from '../dominio/placar';
 import { Tabuleiro } from '../dominio/tabuleiro';
 import { PartidaPersistida, TabuleiroPersistido } from '../modelos/sessao-jogo';
+import { RegistroPartida } from '../modelos/registro-partida';
 import { ResultadoBatalha } from '../modelos/resultado-batalha';
 import { ArmazenamentoPartidasService } from './armazenamento-partidas.service';
 import { ArmazenamentoSessaoJogoService } from './armazenamento-sessao-jogo.service';
@@ -15,11 +16,13 @@ import { ArmazenamentoSessaoJogoService } from './armazenamento-sessao-jogo.serv
 export class SessaoJogoService {
   private readonly armazenamentoPartidas = inject(ArmazenamentoPartidasService);
   private readonly armazenamentoSessao = inject(ArmazenamentoSessaoJogoService);
-  private readonly placar = new Placar(this.armazenamentoPartidas.carregar().pontuacao);
+  private readonly estadoPartidas = this.armazenamentoPartidas.carregar();
+  private readonly placar = new Placar(this.estadoPartidas.pontuacao);
   private readonly fabricaFrotaComputador = new FabricaFrotaComputador();
   readonly modo = signal(ModoPartida.Computador);
   readonly partida = signal<Partida | null>(null);
   readonly pontuacao = signal<Pontuacao>(this.placar.obterPontuacao());
+  readonly historico = signal<readonly RegistroPartida[]>(this.estadoPartidas.historico);
   readonly tempoRestante = signal(90);
   private readonly tabuleiroJogadorUm = signal<Tabuleiro | null>(null);
 
@@ -91,12 +94,14 @@ export class SessaoJogoService {
         id: crypto.randomUUID(),
         concluidaEm: new Date().toISOString(),
         resultado: resultadoBatalha.resultado,
+        modo: this.modo(),
         duracaoSegundos: resultadoBatalha.duracaoSegundos,
         resumoJogadorUm: resultadoBatalha.resumoJogadorUm,
         resumoJogadorDois: resultadoBatalha.resumoJogadorDois,
       },
       pontuacao,
     );
+    this.historico.set(this.armazenamentoPartidas.carregar().historico);
     this.armazenamentoSessao.limpar();
   }
 
@@ -134,7 +139,7 @@ export class SessaoJogoService {
 
     try {
       this.modo.set(sessao.modo);
-      this.tempoRestante.set(this.obterTempoValido(sessao.tempoRestante));
+      this.tempoRestante.set(this.obterTempoRestaurado(sessao.tempoRestante, sessao.salvaEm));
 
       if (sessao.tabuleiroJogadorUm) {
         this.tabuleiroJogadorUm.set(this.restaurarTabuleiro(sessao.tabuleiroJogadorUm));
@@ -210,5 +215,16 @@ export class SessaoJogoService {
     return Number.isInteger(tempoRestante) && tempoRestante >= 0 && tempoRestante <= 90
       ? tempoRestante
       : 90;
+  }
+
+  private obterTempoRestaurado(tempoRestante: number, salvaEm: string): number {
+    const dataSalva = Date.parse(salvaEm);
+
+    if (Number.isNaN(dataSalva)) {
+      return 0;
+    }
+
+    const segundosDecorridos = Math.max(0, Math.floor((Date.now() - dataSalva) / 1_000));
+    return Math.max(0, this.obterTempoValido(tempoRestante) - segundosDecorridos);
   }
 }

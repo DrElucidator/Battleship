@@ -56,6 +56,7 @@ export class ArmazenamentoSessaoJogoService {
       (modo !== ModoPartida.Computador && modo !== ModoPartida.Local) ||
       !this.ehTempoValido(tempoRestante) ||
       typeof salvaEm !== 'string' ||
+      Number.isNaN(Date.parse(salvaEm)) ||
       (tabuleiroJogadorUm !== undefined && !this.ehObjeto(tabuleiroJogadorUm)) ||
       (partida !== undefined && !this.ehObjeto(partida))
     ) {
