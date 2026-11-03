@@ -18,7 +18,7 @@ export class App {
   protected readonly nomeJogo = signal('Batalha Naval');
   protected readonly etapa = signal<'apresentacao' | 'preparacao' | 'batalha'>('apresentacao');
   protected readonly partida = signal<Partida | null>(null);
-  protected readonly pontuacao = signal<Pontuacao>({ jogador: 0, computador: 0 });
+  protected readonly pontuacao = signal<Pontuacao>({ jogadorUm: 0, jogadorDois: 0 });
   private readonly fabricaFrotaComputador = new FabricaFrotaComputador();
   private readonly placar = new Placar();
 

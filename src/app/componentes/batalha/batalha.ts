@@ -21,7 +21,9 @@ import {
 import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
-import { Partida, ResultadoPartida, TurnoPartida } from '../../dominio/partida';
+import { EstrategiaAtaqueComputador } from '../../dominio/estrategia-ataque-computador';
+import { Partida, ResultadoPartida } from '../../dominio/partida';
+import { ParticipantePartida } from '../../dominio/participante';
 import { Pontuacao } from '../../dominio/placar';
 import { Tabuleiro } from '../../dominio/tabuleiro';
 import { TipoEmbarcacao } from '../../dominio/frota';
@@ -61,13 +63,14 @@ export class BatalhaComponent implements OnDestroy {
   readonly pontuacao = input.required<Pontuacao>();
   readonly resultadoFinalizado = output<ResultadoPartida>();
   readonly novaPartidaSolicitada = output<void>();
-  readonly turnos = TurnoPartida;
+  readonly participantes = ParticipantePartida;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);
   readonly ultimaJogada = signal<UltimaJogada | null>(null);
   private readonly revisao = signal(0);
   private readonly duracaoProcessamentoComputador = 1_000;
+  private readonly estrategiaAtaqueComputador = new EstrategiaAtaqueComputador();
   private resultadoFoiComunicado = false;
   private temporizadorComputador: ReturnType<typeof setTimeout> | undefined;
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
@@ -80,24 +83,30 @@ export class BatalhaComponent implements OnDestroy {
     this.revisao();
     return this.partida().resultado;
   });
-  readonly resumoJogador = computed(() => this.calcularResumo(TurnoPartida.Jogador));
-  readonly resumoComputador = computed(() => this.calcularResumo(TurnoPartida.Computador));
+  readonly tabuleiroJogador = computed(() =>
+    this.partida().obterTabuleiro(ParticipantePartida.JogadorUm),
+  );
+  readonly tabuleiroComputador = computed(() =>
+    this.partida().obterTabuleiro(ParticipantePartida.JogadorDois),
+  );
+  readonly resumoJogador = computed(() => this.calcularResumo(ParticipantePartida.JogadorUm));
+  readonly resumoComputador = computed(() => this.calcularResumo(ParticipantePartida.JogadorDois));
   readonly coordenadasJogadorOcupadas = computed(() => {
     this.revisao();
     return new Set(
-      this.partida()
-        .tabuleiroJogador.obterEmbarcacoes()
+      this.tabuleiroJogador()
+        .obterEmbarcacoes()
         .flatMap((embarcacao) => embarcacao.posicoes.map((posicao) => posicao.paraTexto())),
     );
   });
 
-  atacarComputador(coordenada: Coordenada): void {
-    if (!this.podeAtacarComputador(coordenada)) {
+  atacarAdversario(coordenada: Coordenada): void {
+    if (!this.podeAtacarAdversario(coordenada)) {
       return;
     }
 
     try {
-      const jogadaJogador = this.partida().atacarComputador(coordenada);
+      const jogadaJogador = this.partida().atacar(ParticipantePartida.JogadorUm, coordenada);
       this.registrarUltimaJogada('computador', coordenada);
       this.mensagem.set(
         `Você atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
@@ -118,12 +127,12 @@ export class BatalhaComponent implements OnDestroy {
     }
   }
 
-  podeAtacarComputador(coordenada: Coordenada): boolean {
+  podeAtacarAdversario(coordenada: Coordenada): boolean {
     return (
       !this.partida().encerrada &&
       !this.processamentoComputador() &&
-      this.turnoAtual() === TurnoPartida.Jogador &&
-      !this.obterResultadoAtaque(this.partida().tabuleiroComputador, coordenada)
+      this.turnoAtual() === ParticipantePartida.JogadorUm &&
+      !this.obterResultadoAtaque(this.tabuleiroComputador(), coordenada)
     );
   }
 
@@ -139,8 +148,8 @@ export class BatalhaComponent implements OnDestroy {
   }
 
   obterTipoEmbarcacaoJogador(coordenada: Coordenada): TipoEmbarcacao | undefined {
-    return this.partida()
-      .tabuleiroJogador.obterEmbarcacoes()
+    return this.tabuleiroJogador()
+      .obterEmbarcacoes()
       .find((embarcacao) =>
         embarcacao.posicoes.some((posicao) => posicao.paraTexto() === coordenada.paraTexto()),
       )?.tipo;
@@ -212,8 +221,20 @@ export class BatalhaComponent implements OnDestroy {
   ): void {
     const jogadasComputador = [];
 
-    while (this.partida().turnoAtual === TurnoPartida.Computador && !this.partida().encerrada) {
-      jogadasComputador.push(this.partida().atacarJogador());
+    while (
+      this.partida().turnoAtual === ParticipantePartida.JogadorDois &&
+      !this.partida().encerrada
+    ) {
+      const coordenada = this.estrategiaAtaqueComputador.escolherCoordenada(
+        this.tabuleiroJogador(),
+      );
+      const jogada = this.partida().atacar(ParticipantePartida.JogadorDois, coordenada);
+      this.estrategiaAtaqueComputador.registrarResultado(
+        jogada.coordenada,
+        jogada.resultado,
+        jogada.embarcacaoAtingida,
+      );
+      jogadasComputador.push(jogada);
       this.atualizarEstado();
     }
 
@@ -249,7 +270,7 @@ export class BatalhaComponent implements OnDestroy {
     return nomes[tipo];
   }
 
-  private calcularResumo(atacante: TurnoPartida): {
+  private calcularResumo(atacante: ParticipantePartida): {
     ataques: number;
     agua: number;
     acertos: number;

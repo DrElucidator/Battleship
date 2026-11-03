@@ -2,46 +2,47 @@ import { Coordenada } from './coordenada';
 import { Embarcacao } from './embarcacao';
 import { TipoEmbarcacao } from './frota';
 import { Orientacao } from './orientacao';
-import { Partida, ResultadoPartida, TurnoPartida } from './partida';
+import { Partida, ResultadoPartida } from './partida';
+import { ParticipantePartida } from './participante';
 import { Tabuleiro } from './tabuleiro';
 
 describe('Partida', () => {
   it('deve alternar o turno após o jogador atacar água', () => {
     const partida = criarPartida();
 
-    const jogada = partida.atacarComputador(new Coordenada('J', 10));
+    const jogada = partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('J', 10));
 
-    expect(jogada.atacante).toBe(TurnoPartida.Jogador);
+    expect(jogada.atacante).toBe(ParticipantePartida.JogadorUm);
     expect(jogada.coordenada.paraTexto()).toBe('J10');
-    expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
+    expect(partida.turnoAtual).toBe(ParticipantePartida.JogadorDois);
   });
 
   it('deve alternar o turno do jogador após um acerto', () => {
     const partida = criarPartida();
 
-    partida.atacarComputador(new Coordenada('B', 1));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('B', 1));
 
-    expect(partida.turnoAtual).toBe(TurnoPartida.Computador);
+    expect(partida.turnoAtual).toBe(ParticipantePartida.JogadorDois);
   });
 
   it('deve impedir o jogador de atacar fora do seu turno', () => {
     const partida = criarPartida();
-    partida.atacarComputador(new Coordenada('J', 10));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('J', 10));
 
-    expect(() => partida.atacarComputador(new Coordenada('J', 9))).toThrow(
-      'Não é o turno de jogador.',
+    expect(() => partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('J', 9))).toThrow(
+      'Não é o turno de jogador 1.',
     );
   });
 
-  it('deve sortear uma coordenada ainda não atacada para o computador', () => {
+  it('deve permitir que o segundo participante ataque o tabuleiro adversário', () => {
     const partida = criarPartida();
-    partida.atacarComputador(new Coordenada('J', 10));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('J', 10));
 
-    const jogada = partida.atacarJogador(() => 0);
+    const jogada = partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('A', 1));
 
-    expect(jogada.atacante).toBe(TurnoPartida.Computador);
+    expect(jogada.atacante).toBe(ParticipantePartida.JogadorDois);
     expect(jogada.coordenada.paraTexto()).toBe('A1');
-    expect(partida.turnoAtual).toBe(TurnoPartida.Jogador);
+    expect(partida.turnoAtual).toBe(ParticipantePartida.JogadorUm);
   });
 
   it('deve declarar vitória do jogador ao destruir toda a frota adversária', () => {
@@ -49,13 +50,15 @@ describe('Partida', () => {
     const tabuleiroComputador = criarTabuleiroComDestroyer('B', 1);
     const partida = new Partida(tabuleiroJogador, tabuleiroComputador);
 
-    partida.atacarComputador(new Coordenada('B', 1));
-    partida.atacarJogador(() => 0.5);
-    partida.atacarComputador(new Coordenada('B', 2));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('B', 1));
+    partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('J', 10));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('B', 2));
 
-    expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogador);
+    expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogadorUm);
     expect(partida.encerrada).toBe(true);
-    expect(() => partida.atacarJogador()).toThrow('A partida já foi encerrada.');
+    expect(() => partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('A', 1))).toThrow(
+      'A partida já foi encerrada.',
+    );
   });
 
   it('deve informar a embarcação afundada na jogada final', () => {
@@ -63,9 +66,9 @@ describe('Partida', () => {
     const tabuleiroComputador = criarTabuleiroComDestroyer('B', 1);
     const partida = new Partida(tabuleiroJogador, tabuleiroComputador);
 
-    partida.atacarComputador(new Coordenada('B', 1));
-    partida.atacarJogador(() => 0.5);
-    const jogadaFinal = partida.atacarComputador(new Coordenada('B', 2));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('B', 1));
+    partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('J', 10));
+    const jogadaFinal = partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('B', 2));
 
     expect(jogadaFinal.embarcacaoAfundada).toBe(TipoEmbarcacao.Destroyer);
   });
@@ -75,12 +78,12 @@ describe('Partida', () => {
     const tabuleiroComputador = criarTabuleiroComDestroyer('B', 1);
     const partida = new Partida(tabuleiroJogador, tabuleiroComputador);
 
-    partida.atacarComputador(new Coordenada('J', 10));
-    partida.atacarJogador(() => 0);
-    partida.atacarComputador(new Coordenada('J', 9));
-    partida.atacarJogador(() => 0);
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('J', 10));
+    partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('A', 1));
+    partida.atacar(ParticipantePartida.JogadorUm, new Coordenada('J', 9));
+    partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('A', 2));
 
-    expect(partida.resultado).toBe(ResultadoPartida.VitoriaComputador);
+    expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogadorDois);
     expect(partida.encerrada).toBe(true);
   });
 });

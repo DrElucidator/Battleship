@@ -1,23 +1,17 @@
 import { ResultadoAtaque } from './ataque';
 import { Coordenada } from './coordenada';
-import { GeradorAleatorio } from './fabrica-frota-computador';
 import { TipoEmbarcacao } from './frota';
-import { EstrategiaAtaqueComputador } from './estrategia-ataque-computador';
+import { obterAdversario, ParticipantePartida } from './participante';
 import { Tabuleiro } from './tabuleiro';
-
-export enum TurnoPartida {
-  Jogador = 'Jogador',
-  Computador = 'Computador',
-}
 
 export enum ResultadoPartida {
   EmAndamento = 'EmAndamento',
-  VitoriaJogador = 'VitoriaJogador',
-  VitoriaComputador = 'VitoriaComputador',
+  VitoriaJogadorUm = 'VitoriaJogadorUm',
+  VitoriaJogadorDois = 'VitoriaJogadorDois',
 }
 
 export interface Jogada {
-  readonly atacante: TurnoPartida;
+  readonly atacante: ParticipantePartida;
   readonly coordenada: Coordenada;
   readonly resultado: ResultadoAtaque;
   readonly embarcacaoAtingida?: TipoEmbarcacao;
@@ -26,16 +20,15 @@ export interface Jogada {
 
 export class Partida {
   private readonly jogadas: Jogada[] = [];
-  private turno = TurnoPartida.Jogador;
+  private turno = ParticipantePartida.JogadorUm;
   private resultadoAtual = ResultadoPartida.EmAndamento;
-  private readonly estrategiaAtaqueComputador = new EstrategiaAtaqueComputador();
 
   constructor(
-    readonly tabuleiroJogador: Tabuleiro,
-    readonly tabuleiroComputador: Tabuleiro,
+    readonly tabuleiroJogadorUm: Tabuleiro,
+    readonly tabuleiroJogadorDois: Tabuleiro,
   ) {}
 
-  get turnoAtual(): TurnoPartida {
+  get turnoAtual(): ParticipantePartida {
     return this.turno;
   }
 
@@ -47,34 +40,23 @@ export class Partida {
     return this.resultadoAtual !== ResultadoPartida.EmAndamento;
   }
 
-  atacarComputador(coordenada: Coordenada): Jogada {
-    this.garantirTurno(TurnoPartida.Jogador);
-    return this.executarAtaque(TurnoPartida.Jogador, this.tabuleiroComputador, coordenada);
-  }
-
-  atacarJogador(geradorAleatorio: GeradorAleatorio = Math.random): Jogada {
-    this.garantirTurno(TurnoPartida.Computador);
-    const coordenada = this.estrategiaAtaqueComputador.escolherCoordenada(
-      this.tabuleiroJogador,
-      geradorAleatorio,
-    );
-
-    const jogada = this.executarAtaque(TurnoPartida.Computador, this.tabuleiroJogador, coordenada);
-    this.estrategiaAtaqueComputador.registrarResultado(
-      jogada.coordenada,
-      jogada.resultado,
-      jogada.embarcacaoAtingida,
-    );
-
-    return jogada;
+  atacar(atacante: ParticipantePartida, coordenada: Coordenada): Jogada {
+    this.garantirTurno(atacante);
+    return this.executarAtaque(atacante, this.obterTabuleiroAdversario(atacante), coordenada);
   }
 
   obterJogadas(): readonly Jogada[] {
     return [...this.jogadas];
   }
 
+  obterTabuleiro(participante: ParticipantePartida): Tabuleiro {
+    return participante === ParticipantePartida.JogadorUm
+      ? this.tabuleiroJogadorUm
+      : this.tabuleiroJogadorDois;
+  }
+
   private executarAtaque(
-    atacante: TurnoPartida,
+    atacante: ParticipantePartida,
     tabuleiroDefensor: Tabuleiro,
     coordenada: Coordenada,
   ): Jogada {
@@ -91,26 +73,32 @@ export class Partida {
 
     if (tabuleiroDefensor.todasEmbarcacoesForamDestruidas()) {
       this.resultadoAtual =
-        atacante === TurnoPartida.Jogador
-          ? ResultadoPartida.VitoriaJogador
-          : ResultadoPartida.VitoriaComputador;
+        atacante === ParticipantePartida.JogadorUm
+          ? ResultadoPartida.VitoriaJogadorUm
+          : ResultadoPartida.VitoriaJogadorDois;
       return jogada;
     }
 
-    this.turno =
-      atacante === TurnoPartida.Jogador ? TurnoPartida.Computador : TurnoPartida.Jogador;
+    this.turno = obterAdversario(atacante);
 
     return jogada;
   }
 
-  private garantirTurno(turnoEsperado: TurnoPartida): void {
+  private obterTabuleiroAdversario(atacante: ParticipantePartida): Tabuleiro {
+    return this.obterTabuleiro(obterAdversario(atacante));
+  }
+
+  private garantirTurno(turnoEsperado: ParticipantePartida): void {
     if (this.encerrada) {
       throw new Error('A partida já foi encerrada.');
     }
 
     if (this.turno !== turnoEsperado) {
-      throw new Error(`Não é o turno de ${turnoEsperado.toLowerCase()}.`);
+      throw new Error(`Não é o turno de ${this.obterNomeParticipante(turnoEsperado)}.`);
     }
   }
 
+  private obterNomeParticipante(participante: ParticipantePartida): string {
+    return participante === ParticipantePartida.JogadorUm ? 'jogador 1' : 'jogador 2';
+  }
 }

@@ -5,17 +5,17 @@ describe('Placar', () => {
   it('deve registrar vitória do jogador', () => {
     const placar = new Placar();
 
-    placar.registrarResultado(ResultadoPartida.VitoriaJogador);
+    placar.registrarResultado(ResultadoPartida.VitoriaJogadorUm);
 
-    expect(placar.obterPontuacao()).toEqual({ jogador: 1, computador: 0 });
+    expect(placar.obterPontuacao()).toEqual({ jogadorUm: 1, jogadorDois: 0 });
   });
 
   it('deve registrar vitória do computador', () => {
     const placar = new Placar();
 
-    placar.registrarResultado(ResultadoPartida.VitoriaComputador);
+    placar.registrarResultado(ResultadoPartida.VitoriaJogadorDois);
 
-    expect(placar.obterPontuacao()).toEqual({ jogador: 0, computador: 1 });
+    expect(placar.obterPontuacao()).toEqual({ jogadorUm: 0, jogadorDois: 1 });
   });
 
   it('deve rejeitar resultado de partida em andamento', () => {

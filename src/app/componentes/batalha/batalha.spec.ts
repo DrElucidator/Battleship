@@ -20,9 +20,9 @@ describe('BatalhaComponent', () => {
     const fixture = TestBed.createComponent(BatalhaComponent);
     const partida = criarPartida();
     fixture.componentRef.setInput('partida', partida);
-    fixture.componentRef.setInput('pontuacao', { jogador: 0, computador: 0 });
+    fixture.componentRef.setInput('pontuacao', { jogadorUm: 0, jogadorDois: 0 });
 
-    fixture.componentInstance.atacarComputador(new Coordenada('B', 1));
+    fixture.componentInstance.atacarAdversario(new Coordenada('B', 1));
 
     expect(fixture.componentInstance.processamentoComputador()).toBe(true);
     expect(fixture.componentInstance.mensagem()).toBe(
@@ -39,7 +39,7 @@ describe('BatalhaComponent', () => {
   it('deve identificar o tipo da embarcação em uma coordenada da frota do jogador', () => {
     const fixture = TestBed.createComponent(BatalhaComponent);
     fixture.componentRef.setInput('partida', criarPartida());
-    fixture.componentRef.setInput('pontuacao', { jogador: 0, computador: 0 });
+    fixture.componentRef.setInput('pontuacao', { jogadorUm: 0, jogadorDois: 0 });
 
     const tipo = fixture.componentInstance.obterTipoEmbarcacaoJogador(new Coordenada('A', 1));
 

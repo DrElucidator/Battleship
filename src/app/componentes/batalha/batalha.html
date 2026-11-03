@@ -19,7 +19,7 @@
             aria-hidden="true"
           ></svg>
           Computador analisando
-        } @else if (turnoAtual() === turnos.Jogador) {
+        } @else if (turnoAtual() === participantes.JogadorUm) {
           Seu turno
         } @else {
           Turno do computador
@@ -33,11 +33,11 @@
     >
       <div class="border-r border-celula-borda px-4 py-3">
         <dt class="text-xs font-semibold tracking-wide text-texto/65">VOCÊ</dt>
-        <dd class="mt-1 text-2xl font-bold text-agua">{{ pontuacao().jogador }}</dd>
+        <dd class="mt-1 text-2xl font-bold text-agua">{{ pontuacao().jogadorUm }}</dd>
       </div>
       <div class="px-4 py-3">
         <dt class="text-xs font-semibold tracking-wide text-texto/65">COMPUTADOR</dt>
-        <dd class="mt-1 text-2xl font-bold text-embarcacao">{{ pontuacao().computador }}</dd>
+        <dd class="mt-1 text-2xl font-bold text-embarcacao">{{ pontuacao().jogadorDois }}</dd>
       </div>
     </dl>
   </div>
@@ -70,7 +70,7 @@
             <tr>
               <th scope="row">{{ linha.rotulo }}</th>
               @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
-                @let resultado = obterResultadoAtaque(partida().tabuleiroJogador, coordenada);
+                @let resultado = obterResultadoAtaque(tabuleiroJogador(), coordenada);
                 @let tipoEmbarcacao = obterTipoEmbarcacaoJogador(coordenada);
                 <td>
                   <span
@@ -178,7 +178,7 @@
             <tr>
               <th scope="row">{{ linha.rotulo }}</th>
               @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
-                @let resultado = obterResultadoAtaque(partida().tabuleiroComputador, coordenada);
+                @let resultado = obterResultadoAtaque(tabuleiroComputador(), coordenada);
                 <td>
                   <button
                     type="button"
@@ -189,9 +189,9 @@
                       resultado === resultadosAtaque.EmbarcacaoDestruida
                     "
                     [class.celula-batalha--recente]="foiUltimaJogada('computador', coordenada)"
-                    [disabled]="!podeAtacarComputador(coordenada)"
+                    [disabled]="!podeAtacarAdversario(coordenada)"
                     [attr.aria-label]="'Atacar coordenada ' + coordenada.paraTexto()"
-                    (click)="atacarComputador(coordenada)"
+                    (click)="atacarAdversario(coordenada)"
                   >
                     @if (resultado === resultadosAtaque.Agua) {
                       <svg lucideWaves class="size-3.5" aria-hidden="true"></svg>
@@ -214,13 +214,13 @@
     <div class="modal-resultado">
       <section
         class="painel-resultado"
-        [class.painel-resultado--vitoria]="resultadoAtual() === 'VitoriaJogador'"
-        [class.painel-resultado--derrota]="resultadoAtual() === 'VitoriaComputador'"
+        [class.painel-resultado--vitoria]="resultadoAtual() === 'VitoriaJogadorUm'"
+        [class.painel-resultado--derrota]="resultadoAtual() === 'VitoriaJogadorDois'"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-resultado"
       >
-        @if (resultadoAtual() === 'VitoriaJogador') {
+        @if (resultadoAtual() === 'VitoriaJogadorUm') {
           <svg lucideTrophy class="size-10" aria-hidden="true"></svg>
           <div>
             <h3 id="titulo-resultado" class="text-2xl font-bold">Vitória!</h3>

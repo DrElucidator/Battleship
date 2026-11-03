@@ -1,22 +1,22 @@
 import { ResultadoPartida } from './partida';
 
 export interface Pontuacao {
-  readonly jogador: number;
-  readonly computador: number;
+  readonly jogadorUm: number;
+  readonly jogadorDois: number;
 }
 
 export class Placar {
-  private vitoriasJogador = 0;
-  private vitoriasComputador = 0;
+  private vitoriasJogadorUm = 0;
+  private vitoriasJogadorDois = 0;
 
   registrarResultado(resultado: ResultadoPartida): void {
-    if (resultado === ResultadoPartida.VitoriaJogador) {
-      this.vitoriasJogador += 1;
+    if (resultado === ResultadoPartida.VitoriaJogadorUm) {
+      this.vitoriasJogadorUm += 1;
       return;
     }
 
-    if (resultado === ResultadoPartida.VitoriaComputador) {
-      this.vitoriasComputador += 1;
+    if (resultado === ResultadoPartida.VitoriaJogadorDois) {
+      this.vitoriasJogadorDois += 1;
       return;
     }
 
@@ -25,8 +25,8 @@ export class Placar {
 
   obterPontuacao(): Pontuacao {
     return {
-      jogador: this.vitoriasJogador,
-      computador: this.vitoriasComputador,
+      jogadorUm: this.vitoriasJogadorUm,
+      jogadorDois: this.vitoriasJogadorDois,
     };
   }
 }
