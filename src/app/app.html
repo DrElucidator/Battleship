@@ -21,7 +21,18 @@
 
   <main class="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
     @if (etapa() === 'apresentacao') {
-      <app-apresentacao-inicial (preparacaoIniciada)="iniciarPreparacao()" />
+      <app-apresentacao-inicial
+        [modo]="modoPartida()"
+        (modoAlterado)="selecionarModo($event)"
+        (preparacaoIniciada)="iniciarPreparacao()"
+      />
+    } @else if (etapa() === 'trocaParaPreparacaoJogadorDois') {
+      <app-troca-jogador
+        [participante]="participantes.JogadorDois"
+        titulo="A frota do Jogador 1 está protegida"
+        descricao="Passe o dispositivo. O Jogador 2 deve posicionar sua frota sem visualizar o tabuleiro anterior."
+        (confirmada)="prepararJogadorDois()"
+      />
     } @else if (partida(); as partidaAtual) {
       <app-batalha
         [partida]="partidaAtual"
@@ -30,7 +41,21 @@
         (novaPartidaSolicitada)="iniciarNovaPartida()"
       />
     } @else {
-      <app-preparacao-frota (batalhaIniciada)="iniciarBatalha($event)" />
+      @if (etapa() === 'preparacaoJogadorUm') {
+        <app-preparacao-frota
+          jogador="Jogador 1"
+          [botaoFinal]="
+            modoPartida() === modos.Local ? 'Passar para o Jogador 2' : 'Iniciar batalha'
+          "
+          (batalhaIniciada)="concluirPreparacaoJogadorUm($event)"
+        />
+      } @else {
+        <app-preparacao-frota
+          jogador="Jogador 2"
+          botaoFinal="Iniciar batalha"
+          (batalhaIniciada)="concluirPreparacaoJogadorDois($event)"
+        />
+      }
     }
   </main>
 </div>

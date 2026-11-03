@@ -59,6 +59,41 @@
   outline-offset: 3px;
 }
 
+.apresentacao__modos {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.apresentacao__modos button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-celula-borda);
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--color-celula);
+  color: color-mix(in srgb, var(--color-texto) 72%, transparent);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.apresentacao__modos button:hover {
+  border-color: var(--color-agua);
+}
+
+.apresentacao__modos button:focus-visible {
+  outline: 2px solid var(--color-agua);
+  outline-offset: 3px;
+}
+
+.apresentacao__modo--selecionado {
+  border-color: var(--color-agua) !important;
+  background: color-mix(in srgb, var(--color-agua) 16%, var(--color-celula)) !important;
+  color: var(--color-texto) !important;
+}
+
 .apresentacao__regras {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

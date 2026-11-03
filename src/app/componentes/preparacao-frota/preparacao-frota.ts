@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { LucideAnchor, LucideRotateCw } from '@lucide/angular';
 import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
@@ -20,6 +20,8 @@ interface LinhaDoTabuleiro {
   templateUrl: './preparacao-frota.html',
 })
 export class PreparacaoFrotaComponent {
+  readonly jogador = input.required<string>();
+  readonly botaoFinal = input.required<string>();
   readonly batalhaIniciada = output<Tabuleiro>();
   readonly embarcacaoSelecionada = signal<TipoEmbarcacao | null>(null);
   readonly orientacao = signal(Orientacao.Horizontal);

@@ -1,0 +1,15 @@
+<section class="troca-jogador" aria-labelledby="titulo-troca">
+  <span class="troca-jogador__icone">
+    <svg lucideEyeOff class="size-6" aria-hidden="true"></svg>
+  </span>
+  <p class="troca-jogador__etiqueta">DISPOSITIVO COMPARTILHADO</p>
+  <h2 id="titulo-troca">{{ titulo() }}</h2>
+  <p>{{ descricao() }}</p>
+
+  <div class="troca-jogador__participante">
+    <svg lucideUserRound class="size-5" aria-hidden="true"></svg>
+    {{ obterNomeParticipante() }}
+  </div>
+
+  <button type="button" (click)="confirmar()">Estou pronto</button>
+</section>

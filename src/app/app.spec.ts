@@ -35,7 +35,9 @@ describe('App', () => {
     botaoPreparacao?.click();
     fixture.detectChanges();
 
-    expect(elemento.querySelector('h2')?.textContent).toContain('Posicione suas embarcações');
+    expect(elemento.querySelector('h2')?.textContent).toContain(
+      'Jogador 1, posicione suas embarcações',
+    );
 
     const botaoInicio = elemento.querySelector<HTMLButtonElement>(
       '[aria-label="Voltar ao início"]',

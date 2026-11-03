@@ -4,11 +4,36 @@
       <h2 id="titulo-apresentacao">Comande sua frota. Domine o oceano.</h2>
       <p class="apresentacao__descricao">
         Posicione suas embarcações, descubra o tabuleiro adversário e destrua a frota inimiga antes
-        que o computador encontre a sua.
+        que seu adversário encontre a sua.
       </p>
 
+      <div class="apresentacao__modos" role="group" aria-label="Modo de partida">
+        <button
+          type="button"
+          [class.apresentacao__modo--selecionado]="modo() === modos.Computador"
+          [attr.aria-pressed]="modo() === modos.Computador"
+          (click)="selecionarModo(modos.Computador)"
+        >
+          <svg lucideCrosshair class="size-4" aria-hidden="true"></svg>
+          Contra computador
+        </button>
+        <button
+          type="button"
+          [class.apresentacao__modo--selecionado]="modo() === modos.Local"
+          [attr.aria-pressed]="modo() === modos.Local"
+          (click)="selecionarModo(modos.Local)"
+        >
+          <svg lucideUsers class="size-4" aria-hidden="true"></svg>
+          Dois jogadores
+        </button>
+      </div>
+
       <button type="button" class="apresentacao__acao" (click)="iniciarPreparacao()">
-        Preparar minha frota
+        @if (modo() === modos.Local) {
+          Preparar frota do Jogador 1
+        } @else {
+          Preparar minha frota
+        }
         <svg lucideShip class="size-5" aria-hidden="true"></svg>
       </button>
     </div>

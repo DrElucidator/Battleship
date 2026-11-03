@@ -1,7 +1,7 @@
 <section class="space-y-3" aria-labelledby="titulo-preparacao">
   <p class="text-sm font-semibold tracking-wide text-agua">PREPARAÇÃO DA FROTA</p>
   <h2 id="titulo-preparacao" class="text-3xl font-bold tracking-tight">
-    Posicione suas embarcações
+    {{ jogador() }}, posicione suas embarcações
   </h2>
   <p class="max-w-2xl text-texto/75">
     Escolha uma embarcação, defina a orientação e selecione a coordenada inicial no tabuleiro.
@@ -151,7 +151,7 @@
         [disabled]="!frotaEstaCompleta()"
         (click)="iniciarBatalha()"
       >
-        Iniciar batalha
+        {{ botaoFinal() }}
       </button>
     </aside>
   </div>
