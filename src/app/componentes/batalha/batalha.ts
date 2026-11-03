@@ -25,11 +25,12 @@ import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { EstrategiaAtaqueComputador } from '../../dominio/estrategia-ataque-computador';
-import { Partida, ResultadoPartida } from '../../dominio/partida';
+import { MotivoEncerramentoPartida, Partida } from '../../dominio/partida';
 import { ParticipantePartida } from '../../dominio/participante';
 import { Pontuacao } from '../../dominio/placar';
 import { Tabuleiro } from '../../dominio/tabuleiro';
 import { TipoEmbarcacao } from '../../dominio/frota';
+import { ResultadoBatalha, ResumoParticipantePartida } from '../../modelos/resultado-batalha';
 
 interface LinhaDoTabuleiro {
   readonly rotulo: LinhaTabuleiro;
@@ -65,19 +66,21 @@ interface UltimaJogada {
 export class BatalhaComponent implements OnDestroy, OnInit {
   readonly partida = input.required<Partida>();
   readonly pontuacao = input.required<Pontuacao>();
-  readonly resultadoFinalizado = output<ResultadoPartida>();
+  readonly resultadoFinalizado = output<ResultadoBatalha>();
   readonly novaPartidaSolicitada = output<void>();
   readonly participantes = ParticipantePartida;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);
   readonly segundosRestantes = signal(90);
+  readonly duracaoPartidaSegundos = signal(0);
   readonly ultimaJogada = signal<UltimaJogada | null>(null);
   private readonly revisao = signal(0);
   private readonly duracaoProcessamentoComputador = 1_000;
   private readonly limiteTempoTurnoSegundos = 90;
   private readonly estrategiaAtaqueComputador = new EstrategiaAtaqueComputador();
   private resultadoFoiComunicado = false;
+  private readonly inicioPartida = Date.now();
   private temporizadorComputador: ReturnType<typeof setTimeout> | undefined;
   private temporizadorTurno: Subscription | undefined;
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
@@ -90,6 +93,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     this.revisao();
     return this.partida().resultado;
   });
+  readonly motivoEncerramento = computed(() => {
+    this.revisao();
+    return this.partida().motivoEncerramento;
+  });
+  readonly motivosEncerramento = MotivoEncerramentoPartida;
   readonly tempoRestanteFormatado = computed(() => {
     const segundos = this.segundosRestantes();
     const minutos = Math.floor(segundos / 60);
@@ -293,12 +301,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     return nomes[tipo];
   }
 
-  private calcularResumo(atacante: ParticipantePartida): {
-    ataques: number;
-    agua: number;
-    acertos: number;
-    destruidas: number;
-  } {
+  private calcularResumo(atacante: ParticipantePartida): ResumoParticipantePartida {
     this.revisao();
     const jogadas = this.partida()
       .obterJogadas()
@@ -308,7 +311,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       ataques: jogadas.length,
       agua: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Agua).length,
       acertos: jogadas.filter((jogada) => jogada.resultado === ResultadoAtaque.Acerto).length,
-      destruidas: jogadas.filter(
+      embarcacoesDestruidas: jogadas.filter(
         (jogada) => jogada.resultado === ResultadoAtaque.EmbarcacaoDestruida,
       ).length,
     };
@@ -320,7 +323,21 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     }
 
     this.resultadoFoiComunicado = true;
-    this.resultadoFinalizado.emit(this.partida().resultado);
+    const motivoEncerramento = this.partida().motivoEncerramento;
+
+    if (!motivoEncerramento) {
+      return;
+    }
+
+    const duracaoSegundos = Math.max(1, Math.round((Date.now() - this.inicioPartida) / 1_000));
+    this.duracaoPartidaSegundos.set(duracaoSegundos);
+    this.resultadoFinalizado.emit({
+      resultado: this.partida().resultado,
+      motivoEncerramento,
+      duracaoSegundos,
+      resumoJogadorUm: this.resumoJogador(),
+      resumoJogadorDois: this.resumoComputador(),
+    });
   }
 
   private iniciarCronometroJogador(): void {

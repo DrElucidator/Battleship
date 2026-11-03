@@ -135,7 +135,7 @@
           </div>
           <div>
             <dt>Destruídas</dt>
-            <dd>{{ resumoJogador().destruidas }}</dd>
+            <dd>{{ resumoJogador().embarcacoesDestruidas }}</dd>
           </div>
         </dl>
       </section>
@@ -157,7 +157,7 @@
           </div>
           <div>
             <dt>Destruídas</dt>
-            <dd>{{ resumoComputador().destruidas }}</dd>
+            <dd>{{ resumoComputador().embarcacoesDestruidas }}</dd>
           </div>
         </dl>
       </section>
@@ -232,21 +232,49 @@
           <svg lucideTrophy class="size-10" aria-hidden="true"></svg>
           <div>
             <h3 id="titulo-resultado" class="text-2xl font-bold">Vitória!</h3>
-            <p class="mt-1 text-sm">Você destruiu toda a frota adversária.</p>
+            <p class="mt-1 text-sm">
+              @if (motivoEncerramento() === motivosEncerramento.TempoEsgotado) {
+                O tempo do computador terminou.
+              } @else {
+                Você destruiu toda a frota adversária.
+              }
+            </p>
           </div>
           <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
-            Embarcações destruídas: {{ resumoJogador().destruidas }} de 5
+            Embarcações destruídas: {{ resumoJogador().embarcacoesDestruidas }} de 5
           </p>
         } @else {
           <svg lucideCircleX class="size-10" aria-hidden="true"></svg>
           <div>
             <h3 id="titulo-resultado" class="text-2xl font-bold">Derrota</h3>
-            <p class="mt-1 text-sm">O computador destruiu toda a sua frota.</p>
+            <p class="mt-1 text-sm">
+              @if (motivoEncerramento() === motivosEncerramento.TempoEsgotado) {
+                Seu tempo terminou antes da jogada.
+              } @else {
+                O computador destruiu toda a sua frota.
+              }
+            </p>
           </div>
           <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
-            Embarcações destruídas pelo computador: {{ resumoComputador().destruidas }} de 5
+            Embarcações destruídas pelo computador:
+            {{ resumoComputador().embarcacoesDestruidas }} de 5
           </p>
         }
+
+        <dl class="painel-resultado__resumo" aria-label="Resumo da partida">
+          <div>
+            <dt>Duração</dt>
+            <dd>{{ duracaoPartidaSegundos() }} s</dd>
+          </div>
+          <div>
+            <dt>Seus acertos</dt>
+            <dd>{{ resumoJogador().acertos }}</dd>
+          </div>
+          <div>
+            <dt>Acertos da CPU</dt>
+            <dd>{{ resumoComputador().acertos }}</dd>
+          </div>
+        </dl>
 
         <button
           type="button"

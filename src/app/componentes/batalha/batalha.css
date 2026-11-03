@@ -123,6 +123,32 @@ button.celula-batalha:focus-visible {
   color: var(--color-acerto);
 }
 
+.painel-resultado__resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.painel-resultado__resumo div {
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.4rem;
+  background-color: rgb(255 255 255 / 28%);
+}
+
+.painel-resultado__resumo dt {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.painel-resultado__resumo dd {
+  margin-top: 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
 .resumo-batalha {
   align-self: start;
   display: grid;

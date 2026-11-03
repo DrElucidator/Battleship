@@ -1,12 +1,6 @@
 import { ResultadoPartida } from '../dominio/partida';
 import { Pontuacao } from '../dominio/placar';
-
-export interface ResumoParticipantePartida {
-  readonly ataques: number;
-  readonly agua: number;
-  readonly acertos: number;
-  readonly embarcacoesDestruidas: number;
-}
+import { ResumoParticipantePartida } from './resultado-batalha';
 
 export interface RegistroPartida {
   readonly id: string;
