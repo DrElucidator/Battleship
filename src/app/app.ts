@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { LucideShip } from '@lucide/angular';
 import { BatalhaComponent } from './componentes/batalha/batalha';
 import { ApresentacaoInicialComponent } from './componentes/apresentacao-inicial/apresentacao-inicial';
@@ -6,6 +6,7 @@ import { PreparacaoFrotaComponent } from './componentes/preparacao-frota/prepara
 import { FabricaFrotaComputador } from './dominio/fabrica-frota-computador';
 import { Partida, ResultadoPartida } from './dominio/partida';
 import { Placar, Pontuacao } from './dominio/placar';
+import { ArmazenamentoPartidasService } from './servicos/armazenamento-partidas.service';
 import { Tabuleiro } from './dominio/tabuleiro';
 
 @Component({
@@ -15,12 +16,13 @@ import { Tabuleiro } from './dominio/tabuleiro';
   templateUrl: './app.html',
 })
 export class App {
+  private readonly armazenamentoPartidas = inject(ArmazenamentoPartidasService);
+  private readonly placar = new Placar(this.armazenamentoPartidas.carregar().pontuacao);
   protected readonly nomeJogo = signal('Batalha Naval');
   protected readonly etapa = signal<'apresentacao' | 'preparacao' | 'batalha'>('apresentacao');
   protected readonly partida = signal<Partida | null>(null);
-  protected readonly pontuacao = signal<Pontuacao>({ jogadorUm: 0, jogadorDois: 0 });
+  protected readonly pontuacao = signal<Pontuacao>(this.placar.obterPontuacao());
   private readonly fabricaFrotaComputador = new FabricaFrotaComputador();
-  private readonly placar = new Placar();
 
   iniciarPreparacao(): void {
     this.etapa.set('preparacao');
@@ -39,7 +41,9 @@ export class App {
 
   registrarResultado(resultado: ResultadoPartida): void {
     this.placar.registrarResultado(resultado);
-    this.pontuacao.set(this.placar.obterPontuacao());
+    const pontuacao = this.placar.obterPontuacao();
+    this.pontuacao.set(pontuacao);
+    this.armazenamentoPartidas.salvarPontuacao(pontuacao);
   }
 
   iniciarNovaPartida(): void {

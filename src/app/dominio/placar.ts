@@ -9,6 +9,11 @@ export class Placar {
   private vitoriasJogadorUm = 0;
   private vitoriasJogadorDois = 0;
 
+  constructor(pontuacaoInicial: Pontuacao = { jogadorUm: 0, jogadorDois: 0 }) {
+    this.vitoriasJogadorUm = pontuacaoInicial.jogadorUm;
+    this.vitoriasJogadorDois = pontuacaoInicial.jogadorDois;
+  }
+
   registrarResultado(resultado: ResultadoPartida): void {
     if (resultado === ResultadoPartida.VitoriaJogadorUm) {
       this.vitoriasJogadorUm += 1;

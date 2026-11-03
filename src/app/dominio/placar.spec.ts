@@ -2,6 +2,12 @@ import { ResultadoPartida } from './partida';
 import { Placar } from './placar';
 
 describe('Placar', () => {
+  it('deve iniciar com uma pontuação previamente registrada', () => {
+    const placar = new Placar({ jogadorUm: 2, jogadorDois: 1 });
+
+    expect(placar.obterPontuacao()).toEqual({ jogadorUm: 2, jogadorDois: 1 });
+  });
+
   it('deve registrar vitória do jogador', () => {
     const placar = new Placar();
 
