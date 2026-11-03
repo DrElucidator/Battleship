@@ -1,10 +1,7 @@
 <section class="batalha" aria-labelledby="titulo-batalha">
   <header class="cabecalho-batalha">
     <div>
-      <h2 id="titulo-batalha">
-        @if (modo() === modos.Computador) { {{ obterTituloAtaque(participantes.JogadorDois) }} }
-        @else { Turno do {{ obterNomeParticipante(turnoAtual()) }} }
-      </h2>
+      <h2 id="titulo-batalha">Afunde as embarcações inimigas</h2>
     </div>
     <p class="indicador-turno" [style.color]="obterCorTempo()" aria-live="polite">
       <svg lucideTimer class="size-4" aria-hidden="true"></svg>

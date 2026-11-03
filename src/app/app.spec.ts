@@ -1,10 +1,13 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter(routes)],
     }).compileComponents();
   });
 
@@ -19,8 +22,10 @@ describe('App', () => {
     expect(elemento.querySelector('main')).toBeTruthy();
   });
 
-  it('deve apresentar o jogo antes de exibir a preparação da frota', async () => {
+  it('deve navegar do início para a preparação da frota', async () => {
     const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -33,6 +38,7 @@ describe('App', () => {
     expect(botaoPreparacao).toBeTruthy();
 
     botaoPreparacao?.click();
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(elemento.querySelector('h2')?.textContent).toContain(
@@ -40,9 +46,10 @@ describe('App', () => {
     );
 
     const botaoInicio = elemento.querySelector<HTMLButtonElement>(
-      '[aria-label="Voltar ao início"]',
+      '[aria-label="Ir para o início"]',
     );
     botaoInicio?.click();
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(elemento.querySelector('h2')?.textContent).toContain('Comande sua frota');

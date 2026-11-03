@@ -348,14 +348,6 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     return `Frota do ${this.obterNomeParticipante(participante)}`;
   }
 
-  obterTituloAtaque(participante: ParticipantePartida): string {
-    if (this.modo() === ModoPartida.Computador && participante === ParticipantePartida.JogadorDois) {
-      return 'Ataque o computador';
-    }
-
-    return `Ataque o ${this.obterNomeParticipante(participante)}`;
-  }
-
   obterTituloTabuleiroAdversario(participante: ParticipantePartida): string {
     if (this.modo() === ModoPartida.Computador && participante === ParticipantePartida.JogadorDois) {
       return 'Tabuleiro adversário';

@@ -1,0 +1,10 @@
+@if (sessao.partida(); as partidaAtual) {
+  <app-batalha
+    [partida]="partidaAtual"
+    [pontuacao]="sessao.pontuacao()"
+    [modo]="modo()"
+    (resultadoFinalizado)="registrarResultado($event)"
+    (novaPartidaSolicitada)="novaPartida()"
+    (inicioSolicitado)="voltarParaInicio()"
+  />
+}

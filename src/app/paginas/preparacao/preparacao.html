@@ -1,0 +1,20 @@
+@if (etapa() === 'troca') {
+  <app-troca-jogador
+    [participante]="participantes.JogadorDois"
+    titulo="A frota do Jogador 1 está protegida"
+    descricao="Passe o dispositivo. O Jogador 2 deve posicionar sua frota sem visualizar o tabuleiro anterior."
+    (confirmada)="prepararJogadorDois()"
+  />
+} @else if (etapa() === 'jogador-2') {
+  <app-preparacao-frota
+    jogador="Jogador 2"
+    botaoFinal="Iniciar batalha"
+    (batalhaIniciada)="concluirJogadorDois($event)"
+  />
+} @else {
+  <app-preparacao-frota
+    jogador="Jogador 1"
+    [botaoFinal]="etapa() === 'cpu' ? 'Iniciar batalha' : 'Passar para o Jogador 2'"
+    (batalhaIniciada)="concluirJogadorUm($event)"
+  />
+}

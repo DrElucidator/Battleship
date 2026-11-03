@@ -1,0 +1,5 @@
+<app-apresentacao-inicial
+  [modo]="sessao.modo()"
+  (modoAlterado)="sessao.modo.set($event)"
+  (preparacaoIniciada)="iniciarPreparacao()"
+/>
