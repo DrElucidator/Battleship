@@ -4,7 +4,7 @@ import { Coordenada } from '../../dominio/coordenada';
 import { Embarcacao } from '../../dominio/embarcacao';
 import { TipoEmbarcacao } from '../../dominio/frota';
 import { Orientacao } from '../../dominio/orientacao';
-import { Partida } from '../../dominio/partida';
+import { Partida, ResultadoPartida } from '../../dominio/partida';
 import { Tabuleiro } from '../../dominio/tabuleiro';
 import { BatalhaComponent } from './batalha';
 
@@ -44,6 +44,22 @@ describe('BatalhaComponent', () => {
     const tipo = fixture.componentInstance.obterTipoEmbarcacaoJogador(new Coordenada('A', 1));
 
     expect(tipo).toBe(TipoEmbarcacao.Destroyer);
+  });
+
+  it('deve encerrar a partida quando o tempo do jogador terminar', () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(BatalhaComponent);
+    const partida = criarPartida();
+    fixture.componentRef.setInput('partida', partida);
+    fixture.componentRef.setInput('pontuacao', { jogadorUm: 0, jogadorDois: 0 });
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(90_000);
+
+    expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogadorDois);
+    expect(fixture.componentInstance.segundosRestantes()).toBe(0);
+    fixture.destroy();
+    vi.useRealTimers();
   });
 });
 

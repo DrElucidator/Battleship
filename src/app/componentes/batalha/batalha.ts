@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  OnInit,
   computed,
   input,
   output,
@@ -15,9 +16,11 @@ import {
   LucideRotateCcw,
   LucideShip,
   LucideSwords,
+  LucideTimer,
   LucideTrophy,
   LucideWaves,
 } from '@lucide/angular';
+import { Subscription, interval } from 'rxjs';
 import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
@@ -50,6 +53,7 @@ interface UltimaJogada {
     LucideRotateCcw,
     LucideShip,
     LucideSwords,
+    LucideTimer,
     LucideTrophy,
     LucideWaves,
     IconeEmbarcacaoComponent,
@@ -58,7 +62,7 @@ interface UltimaJogada {
   styleUrl: './batalha.css',
   templateUrl: './batalha.html',
 })
-export class BatalhaComponent implements OnDestroy {
+export class BatalhaComponent implements OnDestroy, OnInit {
   readonly partida = input.required<Partida>();
   readonly pontuacao = input.required<Pontuacao>();
   readonly resultadoFinalizado = output<ResultadoPartida>();
@@ -67,12 +71,15 @@ export class BatalhaComponent implements OnDestroy {
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);
+  readonly segundosRestantes = signal(90);
   readonly ultimaJogada = signal<UltimaJogada | null>(null);
   private readonly revisao = signal(0);
   private readonly duracaoProcessamentoComputador = 1_000;
+  private readonly limiteTempoTurnoSegundos = 90;
   private readonly estrategiaAtaqueComputador = new EstrategiaAtaqueComputador();
   private resultadoFoiComunicado = false;
   private temporizadorComputador: ReturnType<typeof setTimeout> | undefined;
+  private temporizadorTurno: Subscription | undefined;
   readonly colunas = Array.from({ length: 10 }, (_, indice) => indice + 1);
   readonly linhasDoTabuleiro = this.organizarLinhasDoTabuleiro();
   readonly turnoAtual = computed(() => {
@@ -82,6 +89,13 @@ export class BatalhaComponent implements OnDestroy {
   readonly resultadoAtual = computed(() => {
     this.revisao();
     return this.partida().resultado;
+  });
+  readonly tempoRestanteFormatado = computed(() => {
+    const segundos = this.segundosRestantes();
+    const minutos = Math.floor(segundos / 60);
+    const segundosDaFracao = segundos % 60;
+
+    return `${minutos}:${segundosDaFracao.toString().padStart(2, '0')}`;
   });
   readonly tabuleiroJogador = computed(() =>
     this.partida().obterTabuleiro(ParticipantePartida.JogadorUm),
@@ -107,6 +121,7 @@ export class BatalhaComponent implements OnDestroy {
 
     try {
       const jogadaJogador = this.partida().atacar(ParticipantePartida.JogadorUm, coordenada);
+      this.pausarCronometro();
       this.registrarUltimaJogada('computador', coordenada);
       this.mensagem.set(
         `Você atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
@@ -193,6 +208,12 @@ export class BatalhaComponent implements OnDestroy {
     if (this.temporizadorComputador) {
       clearTimeout(this.temporizadorComputador);
     }
+
+    this.pausarCronometro();
+  }
+
+  ngOnInit(): void {
+    this.iniciarCronometroJogador();
   }
 
   private atualizarEstado(): void {
@@ -240,6 +261,7 @@ export class BatalhaComponent implements OnDestroy {
 
     if (this.partida().encerrada) {
       this.mensagem.set('O computador destruiu toda a sua frota. Fim de jogo.');
+      this.pausarCronometro();
       this.comunicarResultadoFinal();
       return;
     }
@@ -256,6 +278,7 @@ export class BatalhaComponent implements OnDestroy {
     this.mensagem.set(
       `Você atacou ${coordenadaJogador.paraTexto()}: ${descricaoJogadaJogador}. O computador respondeu em ${ataques}.`,
     );
+    this.iniciarCronometroJogador();
   }
 
   private obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
@@ -298,6 +321,36 @@ export class BatalhaComponent implements OnDestroy {
 
     this.resultadoFoiComunicado = true;
     this.resultadoFinalizado.emit(this.partida().resultado);
+  }
+
+  private iniciarCronometroJogador(): void {
+    this.pausarCronometro();
+    this.segundosRestantes.set(this.limiteTempoTurnoSegundos);
+    this.temporizadorTurno = interval(1_000).subscribe(() => {
+      if (
+        this.processamentoComputador() ||
+        this.partida().encerrada ||
+        this.partida().turnoAtual !== ParticipantePartida.JogadorUm
+      ) {
+        return;
+      }
+
+      const segundos = this.segundosRestantes() - 1;
+      this.segundosRestantes.set(segundos);
+
+      if (segundos === 0) {
+        this.partida().encerrarPorTempo(ParticipantePartida.JogadorUm);
+        this.atualizarEstado();
+        this.mensagem.set('Seu tempo terminou. O computador venceu a partida.');
+        this.pausarCronometro();
+        this.comunicarResultadoFinal();
+      }
+    });
+  }
+
+  private pausarCronometro(): void {
+    this.temporizadorTurno?.unsubscribe();
+    this.temporizadorTurno = undefined;
   }
 
   private organizarLinhasDoTabuleiro(): readonly LinhaDoTabuleiro[] {

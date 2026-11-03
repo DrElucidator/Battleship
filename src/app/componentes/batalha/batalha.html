@@ -25,6 +25,14 @@
           Turno do computador
         }
       </p>
+
+      <p
+        class="flex items-center gap-2 rounded-lg border border-celula-borda bg-celula px-4 py-2 text-sm font-semibold"
+        aria-live="polite"
+      >
+        <svg lucideTimer class="size-4 text-agua" aria-hidden="true"></svg>
+        Tempo: {{ tempoRestanteFormatado() }}
+      </p>
     </div>
 
     <dl

@@ -2,7 +2,7 @@ import { Coordenada } from './coordenada';
 import { Embarcacao } from './embarcacao';
 import { TipoEmbarcacao } from './frota';
 import { Orientacao } from './orientacao';
-import { Partida, ResultadoPartida } from './partida';
+import { MotivoEncerramentoPartida, Partida, ResultadoPartida } from './partida';
 import { ParticipantePartida } from './participante';
 import { Tabuleiro } from './tabuleiro';
 
@@ -84,6 +84,16 @@ describe('Partida', () => {
     partida.atacar(ParticipantePartida.JogadorDois, new Coordenada('A', 2));
 
     expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogadorDois);
+    expect(partida.encerrada).toBe(true);
+  });
+
+  it('deve declarar vitória do adversário quando o tempo de um participante se esgotar', () => {
+    const partida = criarPartida();
+
+    partida.encerrarPorTempo(ParticipantePartida.JogadorUm);
+
+    expect(partida.resultado).toBe(ResultadoPartida.VitoriaJogadorDois);
+    expect(partida.motivoEncerramento).toBe(MotivoEncerramentoPartida.TempoEsgotado);
     expect(partida.encerrada).toBe(true);
   });
 });

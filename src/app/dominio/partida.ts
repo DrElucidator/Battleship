@@ -10,6 +10,11 @@ export enum ResultadoPartida {
   VitoriaJogadorDois = 'VitoriaJogadorDois',
 }
 
+export enum MotivoEncerramentoPartida {
+  FrotaDestruida = 'FrotaDestruida',
+  TempoEsgotado = 'TempoEsgotado',
+}
+
 export interface Jogada {
   readonly atacante: ParticipantePartida;
   readonly coordenada: Coordenada;
@@ -22,6 +27,7 @@ export class Partida {
   private readonly jogadas: Jogada[] = [];
   private turno = ParticipantePartida.JogadorUm;
   private resultadoAtual = ResultadoPartida.EmAndamento;
+  private motivoEncerramentoAtual: MotivoEncerramentoPartida | undefined;
 
   constructor(
     readonly tabuleiroJogadorUm: Tabuleiro,
@@ -40,6 +46,10 @@ export class Partida {
     return this.resultadoAtual !== ResultadoPartida.EmAndamento;
   }
 
+  get motivoEncerramento(): MotivoEncerramentoPartida | undefined {
+    return this.motivoEncerramentoAtual;
+  }
+
   atacar(atacante: ParticipantePartida, coordenada: Coordenada): Jogada {
     this.garantirTurno(atacante);
     return this.executarAtaque(atacante, this.obterTabuleiroAdversario(atacante), coordenada);
@@ -47,6 +57,18 @@ export class Partida {
 
   obterJogadas(): readonly Jogada[] {
     return [...this.jogadas];
+  }
+
+  encerrarPorTempo(participanteSemTempo: ParticipantePartida): void {
+    if (this.encerrada) {
+      throw new Error('A partida já foi encerrada.');
+    }
+
+    this.resultadoAtual =
+      participanteSemTempo === ParticipantePartida.JogadorUm
+        ? ResultadoPartida.VitoriaJogadorDois
+        : ResultadoPartida.VitoriaJogadorUm;
+    this.motivoEncerramentoAtual = MotivoEncerramentoPartida.TempoEsgotado;
   }
 
   obterTabuleiro(participante: ParticipantePartida): Tabuleiro {
@@ -76,6 +98,7 @@ export class Partida {
         atacante === ParticipantePartida.JogadorUm
           ? ResultadoPartida.VitoriaJogadorUm
           : ResultadoPartida.VitoriaJogadorDois;
+      this.motivoEncerramentoAtual = MotivoEncerramentoPartida.FrotaDestruida;
       return jogada;
     }
 
