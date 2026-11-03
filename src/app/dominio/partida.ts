@@ -34,6 +34,25 @@ export class Partida {
     readonly tabuleiroJogadorDois: Tabuleiro,
   ) {}
 
+  static restaurar(
+    tabuleiroJogadorUm: Tabuleiro,
+    tabuleiroJogadorDois: Tabuleiro,
+    jogadas: readonly Pick<Jogada, 'atacante' | 'coordenada'>[],
+    participanteSemTempo?: ParticipantePartida,
+  ): Partida {
+    const partida = new Partida(tabuleiroJogadorUm, tabuleiroJogadorDois);
+
+    for (const jogada of jogadas) {
+      partida.atacar(jogada.atacante, jogada.coordenada);
+    }
+
+    if (participanteSemTempo) {
+      partida.encerrarPorTempo(participanteSemTempo);
+    }
+
+    return partida;
+  }
+
   get turnoAtual(): ParticipantePartida {
     return this.turno;
   }

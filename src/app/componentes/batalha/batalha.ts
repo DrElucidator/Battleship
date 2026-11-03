@@ -67,7 +67,9 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   readonly partida = input.required<Partida>();
   readonly pontuacao = input.required<Pontuacao>();
   readonly modo = input<ModoPartida>(ModoPartida.Computador);
+  readonly tempoRestanteInicial = input(90);
   readonly resultadoFinalizado = output<ResultadoBatalha>();
+  readonly estadoPartidaAlterado = output<number>();
   readonly novaPartidaSolicitada = output<void>();
   readonly inicioSolicitado = output<void>();
   readonly participantes = ParticipantePartida;
@@ -204,6 +206,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
           `${this.obterNomeParticipante(atacante)} atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}. Turno do ${this.obterNomeParticipante(proximoJogador)}.`,
         );
         this.iniciarCronometroJogador();
+        this.estadoPartidaAlterado.emit(this.segundosRestantes());
         return;
       }
 
@@ -325,7 +328,18 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.iniciarCronometroJogador();
+    this.jogadorVisivel.set(this.partida().turnoAtual);
+    this.segundosRestantes.set(this.tempoRestanteInicial());
+
+    if (this.segundosRestantes() === 0 && !this.partida().encerrada) {
+      this.partida().encerrarPorTempo(this.jogadorVisivel());
+      this.atualizarEstado();
+      this.mensagem.set(`O tempo de ${this.obterNomeParticipante(this.jogadorVisivel())} terminou.`);
+      this.comunicarResultadoFinal();
+      return;
+    }
+
+    this.iniciarCronometroJogador(false);
   }
 
   private atualizarEstado(): void {
@@ -452,6 +466,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       `Você atacou ${coordenadaJogador.paraTexto()}: ${descricaoJogadaJogador}. O computador respondeu em ${ataques}.`,
     );
     this.iniciarCronometroJogador();
+    this.estadoPartidaAlterado.emit(this.segundosRestantes());
   }
 
   obterNomeEmbarcacao(tipo: TipoEmbarcacao): string {
@@ -509,9 +524,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     });
   }
 
-  private iniciarCronometroJogador(): void {
+  private iniciarCronometroJogador(reiniciar = true): void {
     this.pausarCronometro();
-    this.segundosRestantes.set(this.limiteTempoTurnoSegundos);
+    if (reiniciar) {
+      this.segundosRestantes.set(this.limiteTempoTurnoSegundos);
+    }
     this.temporizadorTurno = interval(1_000).subscribe(() => {
       if (
         this.processamentoComputador() ||
@@ -523,6 +540,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
 
       const segundos = this.segundosRestantes() - 1;
       this.segundosRestantes.set(segundos);
+      this.estadoPartidaAlterado.emit(segundos);
 
       if (segundos === 0) {
         this.partida().encerrarPorTempo(this.jogadorVisivel());

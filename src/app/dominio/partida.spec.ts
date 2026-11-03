@@ -17,6 +17,25 @@ describe('Partida', () => {
     expect(partida.turnoAtual).toBe(ParticipantePartida.JogadorDois);
   });
 
+  it('deve restaurar tabuleiros e jogadas sem perder o turno atual', () => {
+    const tabuleiroJogadorUm = criarTabuleiroComDestroyer('A', 1);
+    const tabuleiroJogadorDois = criarTabuleiroComDestroyer('B', 1);
+    const partidaOriginal = new Partida(tabuleiroJogadorUm, tabuleiroJogadorDois);
+
+    partidaOriginal.atacar(ParticipantePartida.JogadorUm, new Coordenada('B', 1));
+    partidaOriginal.atacar(ParticipantePartida.JogadorDois, new Coordenada('J', 10));
+
+    const partidaRestaurada = Partida.restaurar(
+      criarTabuleiroComDestroyer('A', 1),
+      criarTabuleiroComDestroyer('B', 1),
+      partidaOriginal.obterJogadas(),
+    );
+
+    expect(partidaRestaurada.obterJogadas()).toHaveLength(2);
+    expect(partidaRestaurada.turnoAtual).toBe(ParticipantePartida.JogadorUm);
+    expect(partidaRestaurada.obterTabuleiro(ParticipantePartida.JogadorDois).obterAtaques()).toHaveLength(1);
+  });
+
   it('deve alternar o turno do jogador após um acerto', () => {
     const partida = criarPartida();
 

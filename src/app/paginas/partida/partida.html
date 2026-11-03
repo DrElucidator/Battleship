@@ -3,7 +3,9 @@
     [partida]="partidaAtual"
     [pontuacao]="sessao.pontuacao()"
     [modo]="modo()"
+    [tempoRestanteInicial]="sessao.tempoRestante()"
     (resultadoFinalizado)="registrarResultado($event)"
+    (estadoPartidaAlterado)="sessao.salvarPartidaEmAndamento($event)"
     (novaPartidaSolicitada)="novaPartida()"
     (inicioSolicitado)="voltarParaInicio()"
   />
