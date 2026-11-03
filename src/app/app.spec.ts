@@ -36,5 +36,13 @@ describe('App', () => {
     fixture.detectChanges();
 
     expect(elemento.querySelector('h2')?.textContent).toContain('Posicione suas embarcações');
+
+    const botaoInicio = elemento.querySelector<HTMLButtonElement>(
+      '[aria-label="Voltar ao início"]',
+    );
+    botaoInicio?.click();
+    fixture.detectChanges();
+
+    expect(elemento.querySelector('h2')?.textContent).toContain('Comande sua frota');
   });
 });

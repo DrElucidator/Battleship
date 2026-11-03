@@ -26,6 +26,11 @@ export class App {
     this.etapa.set('preparacao');
   }
 
+  voltarParaInicio(): void {
+    this.partida.set(null);
+    this.etapa.set('apresentacao');
+  }
+
   iniciarBatalha(tabuleiroJogador: Tabuleiro): void {
     const tabuleiroComputador = this.fabricaFrotaComputador.criar();
     this.partida.set(new Partida(tabuleiroJogador, tabuleiroComputador));
