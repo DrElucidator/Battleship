@@ -183,12 +183,13 @@ button.celula-batalha:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--color-celula-borda);
+  border: 1px solid color-mix(in srgb, currentColor 55%, var(--color-celula-borda));
   border-radius: 0.65rem;
-  background-color: var(--color-celula);
+  background-color: color-mix(in srgb, currentColor 9%, var(--color-celula));
   padding: 0.6rem 0.8rem;
   font-size: 0.85rem;
   font-weight: 700;
+  transition: color 500ms ease, border-color 500ms ease, background-color 500ms ease;
 }
 
 .tabuleiros-batalha {
@@ -215,6 +216,7 @@ button.celula-batalha:focus-visible {
   border-radius: 0.6rem;
   background-color: var(--color-fundo);
   padding: 0.6rem;
+  text-align: center;
 }
 
 .centro-comando span {
@@ -236,17 +238,17 @@ button.celula-batalha:focus-visible {
 
 .centro-comando__turnos article {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.22rem 0.35rem;
+  justify-items: center;
+  align-content: center;
+  gap: 0.18rem;
   border: 1px solid var(--color-celula-borda);
   border-radius: 0.6rem;
   background-color: var(--color-fundo);
   padding: 0.55rem;
 }
 
-.centro-comando__turnos article > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.64rem; }
-.centro-comando__turnos article > strong { grid-column: 1 / -1; font-size: 0.7rem; }
+.centro-comando__turnos article > span { overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; font-size: 0.64rem; }
+.centro-comando__turnos article > strong { font-size: 0.7rem; }
 .centro-comando__turnos .jogador-ativo { border-color: var(--color-agua); background-color: color-mix(in srgb, var(--color-agua) 14%, var(--color-fundo)); }
 
 .centro-comando__log { min-height: 4.75rem; margin-top: auto; }
@@ -254,17 +256,29 @@ button.celula-batalha:focus-visible {
 
 .centro-comando__placar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
 .centro-comando__placar > span { grid-column: 1 / -1; }
-.centro-comando__placar strong { font-size: 0.67rem; }
-.centro-comando__placar p, .centro-comando__placar small { display: block; margin-top: 0.25rem; font-size: 0.63rem; line-height: 1.35; }
-.centro-comando__placar small { color: color-mix(in srgb, var(--color-texto) 65%, transparent); }
+.placar-participante { border-radius: 0.5rem; background: color-mix(in srgb, var(--color-celula-borda) 20%, var(--color-fundo)); padding: 0.55rem 0.3rem; }
+.centro-comando__placar strong { font-size: 0.73rem; }
+.placar-participante dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.18rem; margin-top: 0.4rem; }
+.placar-participante dl div { display: grid; justify-items: center; gap: 0.08rem; }
+.placar-participante dl svg { width: 0.72rem; height: 0.72rem; box-sizing: content-box; border: 1px solid currentColor; border-radius: 999px; padding: 0.15rem; }
+.placar-participante dl div:nth-child(1) svg { background: color-mix(in srgb, #16a34a 13%, var(--color-fundo)); color: #15803d; }
+.placar-participante dl div:nth-child(2) svg { background: color-mix(in srgb, var(--color-acerto) 13%, var(--color-fundo)); color: var(--color-acerto); }
+.placar-participante dl div:nth-child(3) svg { background: color-mix(in srgb, var(--color-agua) 13%, var(--color-fundo)); color: var(--color-agua); }
+.placar-participante dt { color: color-mix(in srgb, var(--color-texto) 65%, transparent); font-size: 0.57rem; line-height: 1.1; }
+.placar-participante dd { font-size: 0.8rem; font-weight: 800; }
+.centro-comando__placar small { display: inline-flex; align-items: center; justify-content: center; gap: 0.2rem; margin-top: 0.4rem; color: color-mix(in srgb, var(--color-texto) 65%, transparent); font-size: 0.61rem; }
+.centro-comando__placar small svg { width: 0.65rem; height: 0.65rem; color: var(--color-afundado); }
 
-.centro-comando__frotas { display: grid; gap: 0.45rem; }
-.centro-comando__frotas > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.35rem; }
-.centro-comando__frotas > div > strong { width: 1rem; font-size: 0.65rem; }
-.centro-comando__frotas small { color: color-mix(in srgb, var(--color-texto) 74%, transparent); font-size: 0.6rem; white-space: nowrap; }
-.centro-comando__frotas small b { display: block; font-size: 0.57rem; }
-.centro-comando__frotas .frota--atingida { color: var(--color-acerto); }
-.centro-comando__frotas .frota--afundada { color: var(--color-afundado); }
+.centro-comando__frotas { display: grid; gap: 0.55rem; padding-block: 0.75rem !important; }
+.frota-participante { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr); align-items: center; gap: 0.35rem; }
+.frota-participante > strong { display: grid; height: 1.45rem; place-items: center; border-radius: 0.35rem; background: color-mix(in srgb, var(--color-celula-borda) 25%, var(--color-fundo)); font-size: 0.62rem; }
+.frota-participante > div { display: grid; grid-template-columns: repeat(5, 1.8rem); justify-content: center; gap: 0.22rem; }
+.frota-chip { position: relative; display: block; width: 1.8rem; height: 1.8rem; border: 1px solid var(--color-celula-borda); border-radius: 0.4rem; color: color-mix(in srgb, var(--color-embarcacao) 85%, var(--color-texto)); }
+.frota-chip app-icone-embarcacao { position: absolute; inset: 0; display: grid; width: auto; height: auto; place-items: center; transform: none; }
+.frota-chip app-icone-embarcacao svg { display: block; }
+.frota-chip i { position: absolute; right: 0.15rem; bottom: 0.15rem; width: 0.25rem; height: 0.25rem; border-radius: 999px; background: #22c55e; }
+.frota-chip.frota--atingida { border-color: var(--color-acerto); color: var(--color-acerto); }.frota-chip.frota--atingida i { background: var(--color-acerto); }
+.frota-chip.frota--afundada { border-color: var(--color-afundado); background: color-mix(in srgb, var(--color-afundado) 12%, var(--color-fundo)); color: var(--color-afundado); }.frota-chip.frota--afundada i { background: var(--color-afundado); }
 
 .botao-resultado, .botao-secundario { display: inline-flex; align-items: center; gap: 0.45rem; border-radius: 0.55rem; padding: 0.55rem 0.8rem; font-size: 0.85rem; font-weight: 700; transition: background-color 150ms ease, border-color 150ms ease; }
 .botao-resultado { border: 1px solid currentColor; }

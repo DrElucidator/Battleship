@@ -1,14 +1,13 @@
 <section class="batalha" aria-labelledby="titulo-batalha">
   <header class="cabecalho-batalha">
     <div>
-      <p>PARTIDA LOCAL</p>
       <h2 id="titulo-batalha">
         @if (modo() === modos.Computador) { {{ obterTituloAtaque(participantes.JogadorDois) }} }
         @else { Turno do {{ obterNomeParticipante(turnoAtual()) }} }
       </h2>
     </div>
-    <p class="indicador-turno" aria-live="polite">
-      <svg lucideTimer class="size-4 text-agua" aria-hidden="true"></svg>
+    <p class="indicador-turno" [style.color]="obterCorTempo()" aria-live="polite">
+      <svg lucideTimer class="size-4" aria-hidden="true"></svg>
       @if (processamentoComputador()) {
         <svg lucideLoaderCircle class="indicador-processamento size-4 text-agua" aria-hidden="true"></svg>
         Computador analisando
@@ -43,13 +42,13 @@
       </section>
       <section class="centro-comando__placar" aria-label="Placar da partida">
         <span>PLACAR DA PARTIDA</span>
-        <div><strong>{{ obterNomeParticipante(participantes.JogadorUm) }}</strong><p>{{ calcularResumo(participantes.JogadorUm).ataques }} ataques · {{ calcularResumo(participantes.JogadorUm).acertos }} acertos · {{ calcularResumo(participantes.JogadorUm).agua }} água</p><small>{{ calcularResumo(participantes.JogadorUm).embarcacoesDestruidas }} destruídas</small></div>
-        <div><strong>{{ obterNomeParticipante(participantes.JogadorDois) }}</strong><p>{{ calcularResumo(participantes.JogadorDois).ataques }} ataques · {{ calcularResumo(participantes.JogadorDois).acertos }} acertos · {{ calcularResumo(participantes.JogadorDois).agua }} água</p><small>{{ calcularResumo(participantes.JogadorDois).embarcacoesDestruidas }} destruídas</small></div>
+        <div class="placar-participante"><strong>{{ obterNomeParticipante(participantes.JogadorUm) }}</strong><dl><div><svg lucideCrosshair aria-hidden="true"/><dt>Ataques</dt><dd>{{ calcularResumo(participantes.JogadorUm).ataques }}</dd></div><div><svg lucideTarget aria-hidden="true"/><dt>Acertos</dt><dd>{{ calcularResumo(participantes.JogadorUm).acertos }}</dd></div><div><svg lucideWaves aria-hidden="true"/><dt>Água</dt><dd>{{ calcularResumo(participantes.JogadorUm).agua }}</dd></div></dl><small><svg lucideShip aria-hidden="true"/>{{ calcularResumo(participantes.JogadorUm).embarcacoesDestruidas }} destruídas</small></div>
+        <div class="placar-participante"><strong>{{ obterNomeParticipante(participantes.JogadorDois) }}</strong><dl><div><svg lucideCrosshair aria-hidden="true"/><dt>Ataques</dt><dd>{{ calcularResumo(participantes.JogadorDois).ataques }}</dd></div><div><svg lucideTarget aria-hidden="true"/><dt>Acertos</dt><dd>{{ calcularResumo(participantes.JogadorDois).acertos }}</dd></div><div><svg lucideWaves aria-hidden="true"/><dt>Água</dt><dd>{{ calcularResumo(participantes.JogadorDois).agua }}</dd></div></dl><small><svg lucideShip aria-hidden="true"/>{{ calcularResumo(participantes.JogadorDois).embarcacoesDestruidas }} destruídas</small></div>
       </section>
       <section class="centro-comando__frotas" aria-label="Estado das frotas">
         <span>FROTAS</span>
-        <div><strong>J1</strong>@for (item of obterResumoFrota(participantes.JogadorUm); track item.nome) {<small [class.frota--atingida]="item.situacao === 'Atingida'" [class.frota--afundada]="item.situacao === 'Afundada'">{{ item.nome }}<b>{{ item.situacao }}</b></small>}</div>
-        <div><strong>J2</strong>@for (item of obterResumoFrota(participantes.JogadorDois); track item.nome) {<small [class.frota--atingida]="item.situacao === 'Atingida'" [class.frota--afundada]="item.situacao === 'Afundada'">{{ item.nome }}<b>{{ item.situacao }}</b></small>}</div>
+        <div class="frota-participante"><strong>J1</strong><div>@for (item of obterResumoFrota(participantes.JogadorUm); track item.nome) {<span class="frota-chip" [class.frota--atingida]="item.situacao === 'Atingida'" [class.frota--afundada]="item.situacao === 'Afundada'" [attr.aria-label]="item.nome + ': ' + item.situacao" [title]="item.nome + ': ' + item.situacao"><app-icone-embarcacao [tipo]="item.tipo" tamanho="compacto"/><i></i></span>}</div></div>
+        <div class="frota-participante"><strong>J2</strong><div>@for (item of obterResumoFrota(participantes.JogadorDois); track item.nome) {<span class="frota-chip" [class.frota--atingida]="item.situacao === 'Atingida'" [class.frota--afundada]="item.situacao === 'Afundada'" [attr.aria-label]="item.nome + ': ' + item.situacao" [title]="item.nome + ': ' + item.situacao"><app-icone-embarcacao [tipo]="item.tipo" tamanho="compacto"/><i></i></span>}</div></div>
       </section>
       <section class="centro-comando__log" aria-live="polite">
         <span>ÚLTIMA JOGADA</span>

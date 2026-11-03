@@ -13,6 +13,7 @@ import {
   LucideLoaderCircle,
   LucideRotateCcw,
   LucideShip,
+  LucideTarget,
   LucideTimer,
   LucideTrophy,
   LucideWaves,
@@ -40,6 +41,7 @@ interface UltimaJogada {
 }
 
 interface ItemResumoFrota {
+  readonly tipo: TipoEmbarcacao;
   readonly nome: string;
   readonly situacao: 'Intacta' | 'Atingida' | 'Afundada';
 }
@@ -51,6 +53,7 @@ interface ItemResumoFrota {
     LucideLoaderCircle,
     LucideRotateCcw,
     LucideShip,
+    LucideTarget,
     LucideTimer,
     LucideTrophy,
     LucideWaves,
@@ -253,6 +256,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       .obterTabuleiro(participante)
       .obterEstadosEmbarcacoes()
       .map((estado) => ({
+        tipo: estado.tipo,
         nome: this.obterNomeEmbarcacao(estado.tipo),
         situacao: estado.afundada
           ? 'Afundada'
@@ -382,6 +386,16 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     }
 
     return `Acertos do ${this.obterNomeParticipante(participante)}`;
+  }
+
+  obterCorTempo(): string {
+    const segundos = this.segundosRestantes();
+    const tonalidade =
+      segundos >= 30
+        ? 48 + ((segundos - 30) / 60) * 162
+        : (segundos / 30) * 48;
+
+    return `hsl(${Math.round(tonalidade)} 78% 43%)`;
   }
 
   private registrarUltimaJogada(
