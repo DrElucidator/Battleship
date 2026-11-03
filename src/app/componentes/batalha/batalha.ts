@@ -22,13 +22,14 @@ import {
 } from '@lucide/angular';
 import { Subscription, interval } from 'rxjs';
 import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
+import { StatusFrotaComponent } from '../status-frota/status-frota';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { EstrategiaAtaqueComputador } from '../../dominio/estrategia-ataque-computador';
 import { MotivoEncerramentoPartida, Partida } from '../../dominio/partida';
 import { ParticipantePartida } from '../../dominio/participante';
 import { Pontuacao } from '../../dominio/placar';
-import { Tabuleiro } from '../../dominio/tabuleiro';
+import { EstadoEmbarcacao, Tabuleiro } from '../../dominio/tabuleiro';
 import { TipoEmbarcacao } from '../../dominio/frota';
 import { ResultadoBatalha, ResumoParticipantePartida } from '../../modelos/resultado-batalha';
 
@@ -58,6 +59,7 @@ interface UltimaJogada {
     LucideTrophy,
     LucideWaves,
     IconeEmbarcacaoComponent,
+    StatusFrotaComponent,
   ],
   selector: 'app-batalha',
   styleUrl: './batalha.css',
@@ -113,6 +115,14 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   );
   readonly resumoJogador = computed(() => this.calcularResumo(ParticipantePartida.JogadorUm));
   readonly resumoComputador = computed(() => this.calcularResumo(ParticipantePartida.JogadorDois));
+  readonly estadosFrotaJogador = computed<readonly EstadoEmbarcacao[]>(() => {
+    this.revisao();
+    return this.tabuleiroJogador().obterEstadosEmbarcacoes();
+  });
+  readonly estadosFrotaComputador = computed<readonly EstadoEmbarcacao[]>(() => {
+    this.revisao();
+    return this.tabuleiroComputador().obterEstadosEmbarcacoes();
+  });
   readonly coordenadasJogadorOcupadas = computed(() => {
     this.revisao();
     return new Set(

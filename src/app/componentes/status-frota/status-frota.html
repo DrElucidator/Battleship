@@ -1,0 +1,20 @@
+<section class="status-frota" [attr.aria-label]="titulo()">
+  <h4>{{ titulo() }}</h4>
+
+  <ul>
+    @for (item of itens(); track item.tipo) {
+      <li
+        [class.status-frota__item--atingida]="item.situacao === 'Atingida'"
+        [class.status-frota__item--afundada]="item.situacao === 'Afundada'"
+      >
+        @if (ocultarNaoAfundadas() && item.situacao !== 'Afundada') {
+          <svg lucideShip class="size-4" aria-hidden="true"></svg>
+        } @else {
+          <app-icone-embarcacao [tipo]="item.tipo" />
+        }
+        <span>{{ item.nome }}</span>
+        <strong>{{ item.situacao }}</strong>
+      </li>
+    }
+  </ul>
+</section>

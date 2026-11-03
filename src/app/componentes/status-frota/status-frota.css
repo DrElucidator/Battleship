@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+.status-frota {
+  border-top: 1px solid var(--color-celula-borda);
+  padding-top: 0.75rem;
+}
+
+.status-frota h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-frota ul {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+}
+
+.status-frota li {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 0.45rem;
+  padding: 0.35rem 0.4rem;
+  background-color: color-mix(in srgb, var(--color-fundo) 78%, transparent);
+  color: color-mix(in srgb, var(--color-texto) 72%, transparent);
+  font-size: 0.72rem;
+}
+
+.status-frota li > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-frota strong {
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.status-frota__item--atingida {
+  color: var(--color-acerto) !important;
+  background-color: color-mix(in srgb, var(--color-acerto) 13%, var(--color-fundo)) !important;
+}
+
+.status-frota__item--afundada {
+  color: var(--color-fundo) !important;
+  background-color: var(--color-afundado) !important;
+}

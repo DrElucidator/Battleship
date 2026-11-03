@@ -161,6 +161,13 @@
           </div>
         </dl>
       </section>
+
+      <app-status-frota [estados]="estadosFrotaJogador()" titulo="Sua frota" />
+      <app-status-frota
+        [estados]="estadosFrotaComputador()"
+        [ocultarNaoAfundadas]="true"
+        titulo="Frota adversária"
+      />
     </aside>
 
     <section
