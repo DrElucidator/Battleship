@@ -1,166 +1,49 @@
-<section class="space-y-3" aria-labelledby="titulo-preparacao">
-  <p class="text-sm font-semibold tracking-wide text-agua">PREPARAÇÃO DA FROTA</p>
-  <h2 id="titulo-preparacao" class="text-3xl font-bold tracking-tight">
-    {{ jogador() }}, posicione suas embarcações
-  </h2>
-  <p class="max-w-2xl text-texto/75">
-    Escolha uma embarcação, defina a orientação e selecione a coordenada inicial no tabuleiro.
-  </p>
+<section class="preparacao" aria-labelledby="titulo-preparacao">
+  <header class="preparacao__cabecalho">
+    <div>
+      <p>PREPARAÇÃO DA FROTA</p>
+      <h2 id="titulo-preparacao">{{ jogador() }}, posicione suas embarcações</h2>
+      <span>{{ quantidadeDeEmbarcacoesRestantes() }} embarcações aguardando posicionamento</span>
+    </div>
+    <p class="preparacao__mensagem" role="status">{{ mensagem() }}</p>
+  </header>
 
-  <p class="text-sm text-texto/70" aria-live="polite">
-    {{ quantidadeDeEmbarcacoesRestantes() }} embarcações aguardando posicionamento.
-  </p>
-
-  <p class="rounded-lg border border-celula-borda bg-celula px-4 py-3 text-sm" role="status">
-    {{ mensagem() }}
-  </p>
-
-  <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
-    <section class="overflow-x-auto rounded-xl border border-celula-borda bg-celula p-2">
-      <table
-        class="w-auto min-w-[33rem] border-separate border-spacing-0.5"
-        aria-label="Tabuleiro do jogador"
-      >
-        <thead>
-          <tr>
-            <th scope="col" class="w-10" aria-label="Linhas"></th>
-            @for (coluna of colunas; track coluna) {
-              <th scope="col" class="h-10 text-center text-xs font-semibold text-texto/70">
-                {{ coluna }}
-              </th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (linha of linhasDoTabuleiro; track linha.rotulo) {
-            <tr>
-              <th scope="row" class="w-10 text-center text-xs font-semibold text-texto/70">
-                {{ linha.rotulo }}
-              </th>
-              @for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {
-                @let tipoEmbarcacao = obterTipoEmbarcacaoNaCoordenada(coordenada);
-                <td class="p-0">
-                  <button
-                    type="button"
-                    class="celula-tabuleiro flex size-10 items-center justify-center rounded-md border border-celula-borda bg-fundo text-xs font-medium transition hover:border-agua hover:bg-agua/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua sm:size-[3.125rem]"
-                    [class.celula-tabuleiro--ocupada]="estaCoordenadaOcupada(coordenada)"
-                    [attr.aria-label]="
-                      'Coordenada ' +
-                      coordenada.paraTexto() +
-                      (estaCoordenadaOcupada(coordenada) ? ', ocupada por embarcação' : ', livre')
-                    "
-                    (click)="posicionarEmbarcacao(coordenada)"
-                  >
-                    @if (tipoEmbarcacao) {
-                      <app-icone-embarcacao [tipo]="tipoEmbarcacao" />
-                    } @else {
-                      {{ coordenada.paraTexto() }}
-                    }
-                  </button>
-                </td>
-              }
-            </tr>
-          }
-        </tbody>
+  <div class="preparacao__conteudo">
+    <section class="preparacao__tabuleiro" aria-label="Tabuleiro do jogador">
+      <table class="tabuleiro-preparacao">
+        <thead><tr><th scope="col" aria-label="Linhas"></th>@for (coluna of colunas; track coluna) {<th scope="col">{{ coluna }}</th>}</tr></thead>
+        <tbody>@for (linha of linhasDoTabuleiro; track linha.rotulo) {<tr><th scope="row">{{ linha.rotulo }}</th>@for (coordenada of linha.coordenadas; track coordenada.paraTexto()) {@let tipoEmbarcacao = obterTipoEmbarcacaoNaCoordenada(coordenada);<td><button type="button" class="celula-preparacao" [class.celula-preparacao--ocupada]="estaCoordenadaOcupada(coordenada)" [attr.aria-label]="'Coordenada ' + coordenada.paraTexto() + (estaCoordenadaOcupada(coordenada) ? ', ocupada por embarcação' : ', livre')" (click)="posicionarEmbarcacao(coordenada)">@if (tipoEmbarcacao) {<app-icone-embarcacao [tipo]="tipoEmbarcacao"/>} @else { {{ coordenada.paraTexto() }} }</button></td>}</tr>}</tbody>
       </table>
     </section>
 
-    <aside class="space-y-4 rounded-xl border border-celula-borda bg-celula p-4" aria-label="Frota">
-      <div class="flex items-center gap-2">
-        <svg lucideAnchor class="size-5 text-embarcacao" aria-hidden="true"></svg>
-        <h3 class="font-semibold">Sua frota</h3>
-      </div>
-
-      <div class="space-y-2">
+    <aside class="painel-frota" aria-label="Frota e controles">
+      <div class="painel-frota__titulo"><svg lucideAnchor class="size-5 text-embarcacao" aria-hidden="true"></svg><h3>Sua frota</h3></div>
+      <div class="painel-frota__lista">
         @for (embarcacao of frota; track embarcacao.tipo) {
-          <div class="rounded-lg border border-celula-borda bg-fundo p-2">
-            <div class="flex items-center justify-between gap-2">
-              <button
-                type="button"
-                class="flex min-w-0 flex-1 items-center rounded-md px-1 py-1 text-left transition hover:text-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-                [class.text-agua]="embarcacaoSelecionada() === embarcacao.tipo"
-                [attr.aria-pressed]="embarcacaoSelecionada() === embarcacao.tipo"
-                [disabled]="estaEmbarcacaoPosicionada(embarcacao.tipo)"
-                (click)="selecionarEmbarcacao(embarcacao.tipo)"
-              >
-                <span
-                  class="mr-2 inline-flex size-7 items-center justify-center rounded-md bg-embarcacao/12 text-embarcacao"
-                >
-                  <app-icone-embarcacao [tipo]="embarcacao.tipo" />
-                </span>
-                <span class="min-w-0">
-                  <span class="block truncate font-medium">{{
-                    obterNomeEmbarcacao(embarcacao.tipo)
-                  }}</span>
-                  <span class="block text-xs text-texto/65">
-                    {{ embarcacao.tamanho }} posições
-                  </span>
-                </span>
-              </button>
-
-              @if (estaEmbarcacaoPosicionada(embarcacao.tipo)) {
-                <button
-                  type="button"
-                  class="rounded-md border border-agua px-2 py-1 text-xs font-medium text-agua transition hover:bg-agua/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-                  (click)="reposicionarEmbarcacao(embarcacao.tipo)"
-                >
-                  Reposicionar
-                </button>
-              } @else {
-                <span class="text-xs text-texto/65">Disponível</span>
-              }
-            </div>
+          <div class="item-frota" [class.item-frota--selecionada]="embarcacaoSelecionada() === embarcacao.tipo">
+            <button type="button" class="item-frota__seletor" [attr.aria-pressed]="embarcacaoSelecionada() === embarcacao.tipo" [disabled]="estaEmbarcacaoPosicionada(embarcacao.tipo)" (click)="selecionarEmbarcacao(embarcacao.tipo)">
+              <span><app-icone-embarcacao [tipo]="embarcacao.tipo"/></span>
+              <span><strong>{{ obterNomeEmbarcacao(embarcacao.tipo) }}</strong><small>{{ embarcacao.tamanho }} posições</small></span>
+            </button>
+            @if (estaEmbarcacaoPosicionada(embarcacao.tipo)) {
+              <button type="button" class="item-frota__acao" (click)="reposicionarEmbarcacao(embarcacao.tipo)">Reposicionar</button>
+            } @else { <small class="item-frota__estado">Disponível</small> }
           </div>
         }
       </div>
 
-      <div class="space-y-2 border-t border-celula-borda pt-4">
-        <div class="flex items-center gap-2 text-sm font-medium">
-          <svg lucideRotateCw class="size-4" aria-hidden="true"></svg>
-          <span>Orientação</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2" role="group" aria-label="Orientação da embarcação">
-          <button
-            type="button"
-            class="rounded-lg border border-celula-borda px-3 py-2 text-sm font-medium transition hover:border-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-            [class.border-agua]="orientacao() === orientacoes.Horizontal"
-            [class.bg-agua]="orientacao() === orientacoes.Horizontal"
-            [class.text-texto]="orientacao() === orientacoes.Horizontal"
-            [attr.aria-pressed]="orientacao() === orientacoes.Horizontal"
-            (click)="selecionarOrientacao(orientacoes.Horizontal)"
-          >
-            Horizontal
-          </button>
-          <button
-            type="button"
-            class="rounded-lg border border-celula-borda px-3 py-2 text-sm font-medium transition hover:border-agua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-            [class.border-agua]="orientacao() === orientacoes.Vertical"
-            [class.bg-agua]="orientacao() === orientacoes.Vertical"
-            [class.text-texto]="orientacao() === orientacoes.Vertical"
-            [attr.aria-pressed]="orientacao() === orientacoes.Vertical"
-            (click)="selecionarOrientacao(orientacoes.Vertical)"
-          >
-            Vertical
-          </button>
+      <div class="painel-frota__orientacao">
+        <div><svg lucideRotateCw class="size-4" aria-hidden="true"></svg><span>Orientação</span></div>
+        <div class="orientacoes" role="group" aria-label="Orientação da embarcação">
+          <button type="button" [class.orientacao--ativa]="orientacao() === orientacoes.Horizontal" [attr.aria-pressed]="orientacao() === orientacoes.Horizontal" (click)="selecionarOrientacao(orientacoes.Horizontal)">Horizontal</button>
+          <button type="button" [class.orientacao--ativa]="orientacao() === orientacoes.Vertical" [attr.aria-pressed]="orientacao() === orientacoes.Vertical" (click)="selecionarOrientacao(orientacoes.Vertical)">Vertical</button>
         </div>
       </div>
 
-      <button
-        type="button"
-        class="w-full rounded-lg border border-agua px-4 py-2.5 text-sm font-semibold text-agua transition hover:bg-agua/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua"
-        (click)="posicionarFrotaAutomaticamente()"
-      >
-        Posicionar automaticamente
-      </button>
-
-      <button
-        type="button"
-        class="w-full rounded-lg bg-embarcacao px-4 py-3 text-sm font-semibold text-white transition hover:bg-embarcacao/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agua disabled:cursor-not-allowed disabled:opacity-45"
-        [disabled]="!frotaEstaCompleta()"
-        (click)="iniciarBatalha()"
-      >
-        {{ botaoFinal() }}
-      </button>
+      <div class="painel-frota__acoes">
+        <button type="button" class="botao-automatico" (click)="posicionarFrotaAutomaticamente()">Posicionar automaticamente</button>
+        <button type="button" class="botao-iniciar" [disabled]="!frotaEstaCompleta()" (click)="iniciarBatalha()">{{ botaoFinal() }}</button>
+      </div>
     </aside>
   </div>
 </section>
