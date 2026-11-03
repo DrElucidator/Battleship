@@ -3,7 +3,9 @@
     <p class="text-sm font-semibold tracking-wide text-agua">BATALHA EM ANDAMENTO</p>
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 id="titulo-batalha" class="text-3xl font-bold tracking-tight">Ataque o computador</h2>
+        <h2 id="titulo-batalha" class="text-3xl font-bold tracking-tight">
+          Ataque {{ obterNomeParticipante(obterAdversario(jogadorVisivel())) }}
+        </h2>
         <p class="mt-1 text-texto/75">Selecione uma coordenada no tabuleiro adversário.</p>
       </div>
 
@@ -19,10 +21,10 @@
             aria-hidden="true"
           ></svg>
           Computador analisando
-        } @else if (turnoAtual() === participantes.JogadorUm) {
-          Seu turno
+        } @else if (turnoAtual() === jogadorVisivel()) {
+          Turno de {{ obterNomeParticipante(jogadorVisivel()) }}
         } @else {
-          Turno do computador
+          Aguardando troca de jogador
         }
       </p>
 
@@ -40,11 +42,17 @@
       aria-label="Placar da sessão"
     >
       <div class="border-r border-celula-borda px-4 py-3">
-        <dt class="text-xs font-semibold tracking-wide text-texto/65">VOCÊ</dt>
+        <dt class="text-xs font-semibold tracking-wide text-texto/65">JOGADOR 1</dt>
         <dd class="mt-1 text-2xl font-bold text-agua">{{ pontuacao().jogadorUm }}</dd>
       </div>
       <div class="px-4 py-3">
-        <dt class="text-xs font-semibold tracking-wide text-texto/65">COMPUTADOR</dt>
+        <dt class="text-xs font-semibold tracking-wide text-texto/65">
+          @if (modo() === modos.Computador) {
+            COMPUTADOR
+          } @else {
+            JOGADOR 2
+          }
+        </dt>
         <dd class="mt-1 text-2xl font-bold text-embarcacao">{{ pontuacao().jogadorDois }}</dd>
       </div>
     </dl>
@@ -61,7 +69,9 @@
     >
       <div class="mb-3 flex w-full items-center gap-2">
         <svg lucideShip class="size-5 text-embarcacao" aria-hidden="true"></svg>
-        <h3 id="titulo-seu-tabuleiro" class="font-semibold">Sua frota</h3>
+        <h3 id="titulo-seu-tabuleiro" class="font-semibold">
+          Frota de {{ obterNomeParticipante(jogadorVisivel()) }}
+        </h3>
       </div>
 
       <table class="tabuleiro" aria-label="Tabuleiro do jogador">
@@ -91,7 +101,7 @@
                     [class.celula-batalha--destruida]="
                       resultado === resultadosAtaque.EmbarcacaoDestruida
                     "
-                    [class.celula-batalha--recente]="foiUltimaJogada('jogador', coordenada)"
+                    [class.celula-batalha--recente]="foiUltimaJogada(jogadorVisivel(), coordenada)"
                     [attr.aria-label]="'Sua coordenada ' + coordenada.paraTexto()"
                   >
                     @if (resultado === resultadosAtaque.Agua) {
@@ -119,7 +129,7 @@
       </div>
 
       <section class="resumo-batalha__grupo" aria-labelledby="titulo-resumo-jogador">
-        <h4 id="titulo-resumo-jogador">Você</h4>
+        <h4 id="titulo-resumo-jogador">{{ obterNomeParticipante(jogadorVisivel()) }}</h4>
         <dl>
           <div>
             <dt>Ataques</dt>
@@ -141,7 +151,9 @@
       </section>
 
       <section class="resumo-batalha__grupo" aria-labelledby="titulo-resumo-computador">
-        <h4 id="titulo-resumo-computador">Computador</h4>
+        <h4 id="titulo-resumo-computador">
+          {{ obterNomeParticipante(obterAdversario(jogadorVisivel())) }}
+        </h4>
         <dl>
           <div>
             <dt>Ataques</dt>
@@ -162,7 +174,10 @@
         </dl>
       </section>
 
-      <app-status-frota [estados]="estadosFrotaJogador()" titulo="Sua frota" />
+      <app-status-frota
+        [estados]="estadosFrotaJogador()"
+        [titulo]="'Frota de ' + obterNomeParticipante(jogadorVisivel())"
+      />
       <app-status-frota
         [estados]="estadosFrotaComputador()"
         [ocultarNaoAfundadas]="true"
@@ -176,7 +191,9 @@
     >
       <div class="mb-3 flex w-full items-center gap-2">
         <svg lucideCrosshair class="size-5 text-agua" aria-hidden="true"></svg>
-        <h3 id="titulo-tabuleiro-computador" class="font-semibold">Tabuleiro adversário</h3>
+        <h3 id="titulo-tabuleiro-computador" class="font-semibold">
+          Tabuleiro de {{ obterNomeParticipante(obterAdversario(jogadorVisivel())) }}
+        </h3>
       </div>
 
       <table class="tabuleiro" aria-label="Tabuleiro adversário">
@@ -203,7 +220,9 @@
                     [class.celula-batalha--destruida]="
                       resultado === resultadosAtaque.EmbarcacaoDestruida
                     "
-                    [class.celula-batalha--recente]="foiUltimaJogada('computador', coordenada)"
+                    [class.celula-batalha--recente]="
+                      foiUltimaJogada(obterAdversario(jogadorVisivel()), coordenada)
+                    "
                     [disabled]="!podeAtacarAdversario(coordenada)"
                     [attr.aria-label]="'Atacar coordenada ' + coordenada.paraTexto()"
                     (click)="atacarAdversario(coordenada)"
@@ -228,45 +247,27 @@
   @if (resultadoAtual() !== 'EmAndamento') {
     <div class="modal-resultado">
       <section
-        class="painel-resultado"
-        [class.painel-resultado--vitoria]="resultadoAtual() === 'VitoriaJogadorUm'"
-        [class.painel-resultado--derrota]="resultadoAtual() === 'VitoriaJogadorDois'"
+        class="painel-resultado painel-resultado--vitoria"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-resultado"
       >
-        @if (resultadoAtual() === 'VitoriaJogadorUm') {
-          <svg lucideTrophy class="size-10" aria-hidden="true"></svg>
-          <div>
-            <h3 id="titulo-resultado" class="text-2xl font-bold">Vitória!</h3>
-            <p class="mt-1 text-sm">
-              @if (motivoEncerramento() === motivosEncerramento.TempoEsgotado) {
-                O tempo do computador terminou.
-              } @else {
-                Você destruiu toda a frota adversária.
-              }
-            </p>
-          </div>
-          <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
-            Embarcações destruídas: {{ resumoJogador().embarcacoesDestruidas }} de 5
+        <svg lucideTrophy class="size-10" aria-hidden="true"></svg>
+        <div>
+          <h3 id="titulo-resultado" class="text-2xl font-bold">
+            Vitória de {{ vencedor() ? obterNomeParticipante(vencedor()!) : '' }}
+          </h3>
+          <p class="mt-1 text-sm">
+            @if (motivoEncerramento() === motivosEncerramento.TempoEsgotado) {
+              A vitória foi definida pelo tempo esgotado.
+            } @else {
+              Toda a frota adversária foi destruída.
+            }
           </p>
-        } @else {
-          <svg lucideCircleX class="size-10" aria-hidden="true"></svg>
-          <div>
-            <h3 id="titulo-resultado" class="text-2xl font-bold">Derrota</h3>
-            <p class="mt-1 text-sm">
-              @if (motivoEncerramento() === motivosEncerramento.TempoEsgotado) {
-                Seu tempo terminou antes da jogada.
-              } @else {
-                O computador destruiu toda a sua frota.
-              }
-            </p>
-          </div>
-          <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
-            Embarcações destruídas pelo computador:
-            {{ resumoComputador().embarcacoesDestruidas }} de 5
-          </p>
-        }
+        </div>
+        <p class="mt-4 rounded-lg bg-white/30 px-4 py-3 text-sm">
+          Embarcações destruídas: {{ resumoVencedor()?.embarcacoesDestruidas ?? 0 }} de 5
+        </p>
 
         <dl class="painel-resultado__resumo" aria-label="Resumo da partida">
           <div>
@@ -274,11 +275,11 @@
             <dd>{{ duracaoPartidaSegundos() }} s</dd>
           </div>
           <div>
-            <dt>Seus acertos</dt>
-            <dd>{{ resumoJogador().acertos }}</dd>
+            <dt>Acertos do vencedor</dt>
+            <dd>{{ resumoVencedor()?.acertos ?? 0 }}</dd>
           </div>
           <div>
-            <dt>Acertos da CPU</dt>
+            <dt>Acertos adversários</dt>
             <dd>{{ resumoComputador().acertos }}</dd>
           </div>
         </dl>
@@ -292,6 +293,17 @@
           Nova partida
         </button>
       </section>
+    </div>
+  }
+
+  @if (trocaPendente(); as proximoJogador) {
+    <div class="modal-troca" role="dialog" aria-modal="true" aria-label="Troca de jogador">
+      <app-troca-jogador
+        [participante]="proximoJogador"
+        [titulo]="'Passe o dispositivo para ' + obterNomeParticipante(proximoJogador)"
+        descricao="O tabuleiro anterior foi protegido. Confirme apenas quando o próximo jogador estiver pronto."
+        (confirmada)="confirmarTrocaDeJogador()"
+      />
     </div>
   }
 </section>

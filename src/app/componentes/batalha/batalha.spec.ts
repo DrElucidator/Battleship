@@ -5,6 +5,7 @@ import { Embarcacao } from '../../dominio/embarcacao';
 import { TipoEmbarcacao } from '../../dominio/frota';
 import { Orientacao } from '../../dominio/orientacao';
 import { Partida, ResultadoPartida } from '../../dominio/partida';
+import { ModoPartida, ParticipantePartida } from '../../dominio/participante';
 import { Tabuleiro } from '../../dominio/tabuleiro';
 import { BatalhaComponent } from './batalha';
 
@@ -32,7 +33,9 @@ describe('BatalhaComponent', () => {
     vi.advanceTimersByTime(1_000);
 
     expect(fixture.componentInstance.processamentoComputador()).toBe(false);
-    expect(fixture.componentInstance.ultimaJogada()?.tabuleiroAtacado).toBe('jogador');
+    expect(fixture.componentInstance.ultimaJogada()?.tabuleiroAtacado).toBe(
+      ParticipantePartida.JogadorUm,
+    );
     vi.useRealTimers();
   });
 
@@ -60,6 +63,26 @@ describe('BatalhaComponent', () => {
     expect(fixture.componentInstance.segundosRestantes()).toBe(0);
     fixture.destroy();
     vi.useRealTimers();
+  });
+
+  it('deve proteger os tabuleiros durante a troca de turno local', () => {
+    const fixture = TestBed.createComponent(BatalhaComponent);
+    fixture.componentRef.setInput('partida', criarPartida());
+    fixture.componentRef.setInput('pontuacao', { jogadorUm: 0, jogadorDois: 0 });
+    fixture.componentRef.setInput('modo', ModoPartida.Local);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.trocaPendente()).toBe(ParticipantePartida.JogadorUm);
+
+    fixture.componentInstance.confirmarTrocaDeJogador();
+    fixture.componentInstance.atacarAdversario(new Coordenada('B', 1));
+
+    expect(fixture.componentInstance.trocaPendente()).toBe(ParticipantePartida.JogadorDois);
+    expect(fixture.componentInstance.jogadorVisivel()).toBe(ParticipantePartida.JogadorUm);
+
+    fixture.componentInstance.confirmarTrocaDeJogador();
+
+    expect(fixture.componentInstance.jogadorVisivel()).toBe(ParticipantePartida.JogadorDois);
   });
 });
 

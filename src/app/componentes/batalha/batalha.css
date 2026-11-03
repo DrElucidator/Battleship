@@ -113,14 +113,19 @@ button.celula-batalha:focus-visible {
   background-color: rgb(15 23 42 / 55%);
 }
 
+.modal-troca {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--color-fundo);
+}
+
 .painel-resultado--vitoria {
   background-color: color-mix(in srgb, var(--color-agua) 25%, var(--color-fundo));
   color: #0369a1;
-}
-
-.painel-resultado--derrota {
-  background-color: color-mix(in srgb, var(--color-acerto) 18%, var(--color-fundo));
-  color: var(--color-acerto);
 }
 
 .painel-resultado__resumo {

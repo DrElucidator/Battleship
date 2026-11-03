@@ -37,6 +37,7 @@
       <app-batalha
         [partida]="partidaAtual"
         [pontuacao]="pontuacao()"
+        [modo]="modoPartida()"
         (resultadoFinalizado)="registrarResultado($event)"
         (novaPartidaSolicitada)="iniciarNovaPartida()"
       />

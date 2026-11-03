@@ -9,7 +9,6 @@ import {
   signal,
 } from '@angular/core';
 import {
-  LucideCircleX,
   LucideCrosshair,
   LucideLoaderCircle,
   LucideMedal,
@@ -23,11 +22,12 @@ import {
 import { Subscription, interval } from 'rxjs';
 import { IconeEmbarcacaoComponent } from '../icone-embarcacao/icone-embarcacao';
 import { StatusFrotaComponent } from '../status-frota/status-frota';
+import { TrocaJogadorComponent } from '../troca-jogador/troca-jogador';
 import { ResultadoAtaque } from '../../dominio/ataque';
 import { Coordenada, LinhaTabuleiro } from '../../dominio/coordenada';
 import { EstrategiaAtaqueComputador } from '../../dominio/estrategia-ataque-computador';
 import { MotivoEncerramentoPartida, Partida } from '../../dominio/partida';
-import { ParticipantePartida } from '../../dominio/participante';
+import { ModoPartida, obterAdversario, ParticipantePartida } from '../../dominio/participante';
 import { Pontuacao } from '../../dominio/placar';
 import { EstadoEmbarcacao, Tabuleiro } from '../../dominio/tabuleiro';
 import { TipoEmbarcacao } from '../../dominio/frota';
@@ -38,17 +38,14 @@ interface LinhaDoTabuleiro {
   readonly coordenadas: readonly Coordenada[];
 }
 
-type TabuleiroAtacado = 'jogador' | 'computador';
-
 interface UltimaJogada {
-  readonly tabuleiroAtacado: TabuleiroAtacado;
+  readonly tabuleiroAtacado: ParticipantePartida;
   readonly coordenada: Coordenada;
 }
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    LucideCircleX,
     LucideCrosshair,
     LucideLoaderCircle,
     LucideMedal,
@@ -60,6 +57,7 @@ interface UltimaJogada {
     LucideWaves,
     IconeEmbarcacaoComponent,
     StatusFrotaComponent,
+    TrocaJogadorComponent,
   ],
   selector: 'app-batalha',
   styleUrl: './batalha.css',
@@ -68,12 +66,17 @@ interface UltimaJogada {
 export class BatalhaComponent implements OnDestroy, OnInit {
   readonly partida = input.required<Partida>();
   readonly pontuacao = input.required<Pontuacao>();
+  readonly modo = input<ModoPartida>(ModoPartida.Computador);
   readonly resultadoFinalizado = output<ResultadoBatalha>();
   readonly novaPartidaSolicitada = output<void>();
   readonly participantes = ParticipantePartida;
+  readonly modos = ModoPartida;
+  readonly obterAdversario = obterAdversario;
   readonly resultadosAtaque = ResultadoAtaque;
   readonly mensagem = signal('Seu turno. Escolha uma coordenada no tabuleiro adversário.');
   readonly processamentoComputador = signal(false);
+  readonly jogadorVisivel = signal(ParticipantePartida.JogadorUm);
+  readonly trocaPendente = signal<ParticipantePartida | null>(null);
   readonly segundosRestantes = signal(90);
   readonly duracaoPartidaSegundos = signal(0);
   readonly ultimaJogada = signal<UltimaJogada | null>(null);
@@ -107,14 +110,14 @@ export class BatalhaComponent implements OnDestroy, OnInit {
 
     return `${minutos}:${segundosDaFracao.toString().padStart(2, '0')}`;
   });
-  readonly tabuleiroJogador = computed(() =>
-    this.partida().obterTabuleiro(ParticipantePartida.JogadorUm),
-  );
+  readonly tabuleiroJogador = computed(() => this.partida().obterTabuleiro(this.jogadorVisivel()));
   readonly tabuleiroComputador = computed(() =>
-    this.partida().obterTabuleiro(ParticipantePartida.JogadorDois),
+    this.partida().obterTabuleiro(obterAdversario(this.jogadorVisivel())),
   );
-  readonly resumoJogador = computed(() => this.calcularResumo(ParticipantePartida.JogadorUm));
-  readonly resumoComputador = computed(() => this.calcularResumo(ParticipantePartida.JogadorDois));
+  readonly resumoJogador = computed(() => this.calcularResumo(this.jogadorVisivel()));
+  readonly resumoComputador = computed(() =>
+    this.calcularResumo(obterAdversario(this.jogadorVisivel())),
+  );
   readonly estadosFrotaJogador = computed<readonly EstadoEmbarcacao[]>(() => {
     this.revisao();
     return this.tabuleiroJogador().obterEstadosEmbarcacoes();
@@ -122,6 +125,23 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   readonly estadosFrotaComputador = computed<readonly EstadoEmbarcacao[]>(() => {
     this.revisao();
     return this.tabuleiroComputador().obterEstadosEmbarcacoes();
+  });
+  readonly vencedor = computed<ParticipantePartida | undefined>(() => {
+    const resultado = this.resultadoAtual();
+
+    if (resultado === 'VitoriaJogadorUm') {
+      return ParticipantePartida.JogadorUm;
+    }
+
+    if (resultado === 'VitoriaJogadorDois') {
+      return ParticipantePartida.JogadorDois;
+    }
+
+    return undefined;
+  });
+  readonly resumoVencedor = computed(() => {
+    const vencedor = this.vencedor();
+    return vencedor ? this.calcularResumo(vencedor) : undefined;
   });
   readonly coordenadasJogadorOcupadas = computed(() => {
     this.revisao();
@@ -138,17 +158,25 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     }
 
     try {
-      const jogadaJogador = this.partida().atacar(ParticipantePartida.JogadorUm, coordenada);
+      const atacante = this.jogadorVisivel();
+      const jogadaJogador = this.partida().atacar(atacante, coordenada);
       this.pausarCronometro();
-      this.registrarUltimaJogada('computador', coordenada);
+      this.registrarUltimaJogada(obterAdversario(atacante), coordenada);
       this.mensagem.set(
-        `Você atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
+        `${this.obterNomeParticipante(atacante)} atacou ${coordenada.paraTexto()}: ${this.obterDescricaoJogada(jogadaJogador)}.`,
       );
       this.atualizarEstado();
 
       if (this.partida().encerrada) {
-        this.mensagem.set('Você destruiu toda a frota adversária. Vitória!');
+        this.mensagem.set(
+          `${this.obterNomeParticipante(atacante)} destruiu toda a frota adversária.`,
+        );
         this.comunicarResultadoFinal();
+        return;
+      }
+
+      if (this.modo() === ModoPartida.Local) {
+        this.solicitarTrocaDeJogador(obterAdversario(atacante));
         return;
       }
 
@@ -164,7 +192,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     return (
       !this.partida().encerrada &&
       !this.processamentoComputador() &&
-      this.turnoAtual() === ParticipantePartida.JogadorUm &&
+      this.turnoAtual() === this.jogadorVisivel() &&
       !this.obterResultadoAtaque(this.tabuleiroComputador(), coordenada)
     );
   }
@@ -213,7 +241,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     this.novaPartidaSolicitada.emit();
   }
 
-  foiUltimaJogada(tabuleiroAtacado: TabuleiroAtacado, coordenada: Coordenada): boolean {
+  foiUltimaJogada(tabuleiroAtacado: ParticipantePartida, coordenada: Coordenada): boolean {
     const ultimaJogada = this.ultimaJogada();
 
     return (
@@ -231,6 +259,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    if (this.modo() === ModoPartida.Local) {
+      this.solicitarTrocaDeJogador(ParticipantePartida.JogadorUm);
+      return;
+    }
+
     this.iniciarCronometroJogador();
   }
 
@@ -238,7 +271,31 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     this.revisao.update((valor) => valor + 1);
   }
 
-  private registrarUltimaJogada(tabuleiroAtacado: TabuleiroAtacado, coordenada: Coordenada): void {
+  confirmarTrocaDeJogador(): void {
+    const proximoJogador = this.trocaPendente();
+
+    if (!proximoJogador) {
+      return;
+    }
+
+    this.jogadorVisivel.set(proximoJogador);
+    this.trocaPendente.set(null);
+    this.mensagem.set(`${this.obterNomeParticipante(proximoJogador)}, escolha uma coordenada.`);
+    this.iniciarCronometroJogador();
+  }
+
+  obterNomeParticipante(participante: ParticipantePartida): string {
+    if (this.modo() === ModoPartida.Computador) {
+      return participante === ParticipantePartida.JogadorUm ? 'Você' : 'Computador';
+    }
+
+    return participante === ParticipantePartida.JogadorUm ? 'Jogador 1' : 'Jogador 2';
+  }
+
+  private registrarUltimaJogada(
+    tabuleiroAtacado: ParticipantePartida,
+    coordenada: Coordenada,
+  ): void {
     this.ultimaJogada.set({ tabuleiroAtacado, coordenada });
   }
 
@@ -290,7 +347,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
     const ultimaJogadaComputador = jogadasComputador.at(-1);
 
     if (ultimaJogadaComputador) {
-      this.registrarUltimaJogada('jogador', ultimaJogadaComputador.coordenada);
+      this.registrarUltimaJogada(ParticipantePartida.JogadorUm, ultimaJogadaComputador.coordenada);
     }
 
     this.mensagem.set(
@@ -345,8 +402,8 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       resultado: this.partida().resultado,
       motivoEncerramento,
       duracaoSegundos,
-      resumoJogadorUm: this.resumoJogador(),
-      resumoJogadorDois: this.resumoComputador(),
+      resumoJogadorUm: this.calcularResumo(ParticipantePartida.JogadorUm),
+      resumoJogadorDois: this.calcularResumo(ParticipantePartida.JogadorDois),
     });
   }
 
@@ -357,7 +414,7 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       if (
         this.processamentoComputador() ||
         this.partida().encerrada ||
-        this.partida().turnoAtual !== ParticipantePartida.JogadorUm
+        this.partida().turnoAtual !== this.jogadorVisivel()
       ) {
         return;
       }
@@ -366,9 +423,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
       this.segundosRestantes.set(segundos);
 
       if (segundos === 0) {
-        this.partida().encerrarPorTempo(ParticipantePartida.JogadorUm);
+        this.partida().encerrarPorTempo(this.jogadorVisivel());
         this.atualizarEstado();
-        this.mensagem.set('Seu tempo terminou. O computador venceu a partida.');
+        this.mensagem.set(
+          `O tempo de ${this.obterNomeParticipante(this.jogadorVisivel())} terminou.`,
+        );
         this.pausarCronometro();
         this.comunicarResultadoFinal();
       }
@@ -378,6 +437,11 @@ export class BatalhaComponent implements OnDestroy, OnInit {
   private pausarCronometro(): void {
     this.temporizadorTurno?.unsubscribe();
     this.temporizadorTurno = undefined;
+  }
+
+  private solicitarTrocaDeJogador(participante: ParticipantePartida): void {
+    this.pausarCronometro();
+    this.trocaPendente.set(participante);
   }
 
   private organizarLinhasDoTabuleiro(): readonly LinhaDoTabuleiro[] {
