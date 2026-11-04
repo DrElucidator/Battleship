@@ -1,147 +1,138 @@
-# Batalha Naval — Enunciado da atividade
+# Batalha Naval
 
-## Objetivo
+> Jogo de Batalha Naval desenvolvido em Angular, com partidas contra a CPU e partidas locais para dois jogadores.
 
-Desenvolver uma **versão web do jogo Batalha Naval**, utilizando **Angular**, na qual uma pessoa disputa uma partida contra o computador.
+[![Deploy no GitHub Pages](https://img.shields.io/github/actions/workflow/status/DrElucidator/Battleship/deploy-pages.yml?branch=main&label=deploy&logo=github)](https://github.com/DrElucidator/Battleship/actions/workflows/deploy-pages.yml)
+[![Angular](https://img.shields.io/badge/Angular-22.2-DD0031?logo=angular)](https://angular.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-Este documento descreve **o jogo que deve ser construído**, suas regras e o comportamento esperado. A organização do projeto, as decisões de arquitetura, a implementação e os detalhes de interface serão definidos posteriormente durante o trabalho com **OpenSpec** e **OpenCode**, incluindo as orientações registradas em `AGENTS.md`.
+## Acesse a aplicação
 
-## Como funciona o jogo
+**[Jogar Batalha Naval](https://drelucidator.github.io/Battleship/)**
 
-Cada participante possui uma frota de embarcações escondida em um tabuleiro de **10 × 10 posições**. Os jogadores se alternam atacando coordenadas do tabuleiro adversário, tentando localizar e destruir todas as embarcações.
+## Sumário
 
-O jogador humano enfrenta o computador. **O computador não precisa adotar estratégias de combate:** ele deve escolher aleatoriamente posições que ainda não atacou.
+- [Visão geral](#visão-geral)
+- [Recursos](#recursos)
+- [Tecnologias](#tecnologias)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Regras principais](#regras-principais)
+- [Como executar](#como-executar)
+- [Qualidade](#qualidade)
+- [Deploy](#deploy)
+- [Próximos passos](#próximos-passos)
 
-Vence quem destruir primeiro toda a frota adversária.
+## Visão geral
 
-## 1. Tabuleiros
+Cada participante organiza uma frota em um tabuleiro de 10 x 10 e tenta destruir todas as embarcações adversárias antes de perder a própria frota. A aplicação foi construída como um projeto acadêmico e evoluída para oferecer uma experiência completa de jogo no navegador.
 
-- Cada participante possui um tabuleiro com **10 linhas (A a J)** e **10 colunas (1 a 10)**.
-- Cada posição é identificada por uma coordenada, como `A1`, `C7` ou `J10`.
-- Durante a batalha, o jogador deve conseguir acompanhar seu próprio tabuleiro e os ataques realizados contra o computador.
-- As posições das embarcações do computador permanecem **ocultas durante a partida**. Seus acertos e erros devem ser mostrados conforme os ataques acontecem.
-- No tabuleiro do jogador, devem ser visíveis suas embarcações e os ataques recebidos.
+A versão 1.0.0 funciona integralmente no cliente. Não exige conta, API ou banco de dados para iniciar uma partida.
 
-## 2. Embarcações
+## Recursos
 
-Cada participante possui a mesma frota:
+- Partida contra computador com estratégia de busca e perseguição de embarcações atingidas.
+- Partida local para dois jogadores, com frotas ocultas e alternância de turnos.
+- Posicionamento manual ou automático da frota.
+- Cinco embarcações: porta-aviões, encouraçado, cruzador, submarino e destroyer.
+- Validação de limites, sobreposição e ataques repetidos.
+- Dois tabuleiros visíveis durante a batalha, com estados acessíveis para água, acerto e embarcação destruída.
+- Resumo compacto de turno, placar, frotas e última jogada.
+- Cronômetro de 90 segundos por turno. O tempo esgotado encerra a partida em favor do adversário.
+- Modal de vitória ou derrota com estatísticas da partida.
+- Histórico local de partidas e placar persistente.
+- Restauração de uma partida em andamento após recarregar a página, quando o tempo do turno ainda não expirou.
+- Rotas persistentes e compatíveis com hospedagem estática.
 
-| Embarcação   | Quantidade | Tamanho (posições) |
-| ------------ | ---------: | -----------------: |
-| Porta-aviões |          1 |                  5 |
-| Encouraçado  |          1 |                  4 |
-| Cruzador     |          1 |                  3 |
-| Submarino    |          1 |                  3 |
-| Destroyer    |          1 |                  2 |
+## Tecnologias
 
-Uma embarcação ocupa posições **consecutivas**, sempre em linha reta, na orientação **horizontal ou vertical**.
+| Tecnologia                    | Uso no projeto                                     |
+| ----------------------------- | -------------------------------------------------- |
+| Angular 22                    | Aplicação web, componentes standalone e roteamento |
+| TypeScript                    | Domínio do jogo, contratos e regras de negócio     |
+| Signals                       | Estado reativo da interface e da partida           |
+| RxJS                          | Fluxos temporizados e eventos reativos             |
+| Tailwind CSS 4                | Estilização responsiva                             |
+| Lucide Icons                  | Ícones de interface e embarcações                  |
+| Vitest                        | Testes unitários do domínio                        |
+| ESLint e Prettier             | Análise estática e padronização do código          |
+| LocalStorage                  | Persistência local de sessão, placar e histórico   |
+| GitHub Actions e GitHub Pages | Build e publicação automática                      |
+| OpenSpec                      | Planejamento incremental das mudanças do projeto   |
 
-### Regras de posicionamento
+## Estrutura do projeto
 
-- Nenhuma parte da embarcação pode ficar fora do tabuleiro.
-- Duas embarcações não podem ocupar a mesma posição.
-- Embarcações **podem ficar encostadas**, inclusive nas diagonais, desde que não haja sobreposição.
-- Todas as embarcações da frota devem estar posicionadas para que a batalha possa começar.
-
-**Exemplo:** um cruzador de tamanho 3 pode ocupar `B2`, `B3` e `B4`, mas não `B2`, `B3` e `C4`.
-
-## 3. Preparação da partida
-
-Antes da batalha:
-
-1. O jogador posiciona manualmente suas embarcações no próprio tabuleiro.
-2. O jogador pode alterar o posicionamento enquanto a batalha não tiver começado.
-3. O computador distribui automaticamente sua frota, respeitando as mesmas regras.
-4. A batalha só pode começar quando ambas as frotas estiverem completas e válidas.
-
-O jogador deve conseguir escolher a orientação das embarcações e reconhecer quando uma tentativa de posicionamento é inválida.
-
-## 4. Turnos e ataques
-
-- **O jogador humano realiza o primeiro ataque.**
-- Cada participante tem direito a **um ataque por turno**, mesmo quando acerta uma embarcação.
-- O ataque consiste em selecionar uma única coordenada no tabuleiro adversário.
-- Uma coordenada já atacada não pode ser atacada novamente pelo mesmo participante.
-- Um ataque válido pode resultar em:
-  - **Água:** não havia embarcação naquela posição.
-  - **Acerto:** havia parte de uma embarcação naquela posição.
-  - **Embarcação destruída:** o ataque atingiu a última posição intacta de uma embarcação.
-- Depois de um ataque válido do jogador, o computador realiza um ataque, desde que a partida não tenha terminado.
-- O computador escolhe **aleatoriamente entre as coordenadas que ainda não atacou**.
-- Tentativas inválidas não consomem o turno.
-
-Os resultados dos ataques devem permanecer visíveis para que o jogador acompanhe a evolução da partida.
-
-## 5. Destruição de embarcações
-
-- Cada posição ocupada por uma embarcação pode ser atingida uma única vez.
-- Uma embarcação é considerada **destruída** quando todas as suas posições tiverem sido atingidas.
-- O jogo deve informar quando uma embarcação for destruída.
-- Acertar uma embarcação não revela automaticamente suas posições restantes.
-
-## 6. Vitória, derrota e nova partida
-
-- A partida termina **imediatamente** quando todas as embarcações de um participante forem destruídas.
-- Se a frota do computador for destruída primeiro, o jogador vence.
-- Se a frota do jogador for destruída primeiro, o jogador perde.
-- Depois do encerramento, não é permitido realizar novos ataques naquela partida.
-- O jogador deve poder **iniciar uma nova partida**, com os tabuleiros reiniciados e novas frotas.
-
-## 7. Experiência esperada
-
-A aplicação deve permitir que o usuário:
-
-1. Inicie uma partida a partir de uma apresentação inicial do jogo.
-2. Organize a própria frota antes do combate.
-3. Visualize claramente os dois tabuleiros durante a batalha.
-4. Saiba de quem é o turno e veja o resultado de cada ataque.
-5. Identifique acertos, erros e embarcações destruídas sem depender apenas de cores.
-6. Reconheça quando a partida terminou e possa jogar novamente.
-
-A experiência deve ser utilizável tanto em computadores quanto em dispositivos móveis. **A forma exata das interações e a aparência visual ficam em aberto** para definição durante o desenvolvimento.
-
-## 8. Exemplos de situações que o jogo deve tratar
-
-| Situação                                                    | Comportamento esperado                                                     |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Posicionar um porta-aviões horizontalmente a partir de `A8` | Rejeitar, pois ultrapassaria a borda direita.                              |
-| Posicionar uma embarcação sobre uma posição já ocupada      | Rejeitar sem alterar o posicionamento válido existente.                    |
-| Posicionar duas embarcações lado a lado, sem sobreposição   | Permitir.                                                                  |
-| Iniciar a batalha com embarcações ainda não posicionadas    | Impedir o início.                                                          |
-| Atacar uma coordenada já atacada                            | Impedir o ataque e manter o turno.                                         |
-| Atingir a última posição intacta de uma embarcação          | Informar que ela foi destruída.                                            |
-| Destruir a última embarcação adversária                     | Encerrar a partida imediatamente, sem conceder outro ataque ao computador. |
-| Tentar atacar após o encerramento                           | Impedir o ataque.                                                          |
-| Iniciar uma nova partida                                    | Reiniciar o jogo com uma nova preparação de frotas.                        |
-
-## 9. Limites da atividade
-
-**Não fazem parte do jogo obrigatório:**
-
-- Partidas entre dois jogadores humanos.
-- Multiplayer online.
-- Inteligência artificial estratégica para o computador.
-- Contas de usuário, ranking ou chat.
-- Continuação de partidas após fechar a aplicação.
-
-## Desenvolvimento
-
-Requisitos: Node.js 26 ou superior e npm.
-
-```bash
-npm install     # instala as dependências
-npm start       # servidor de desenvolvimento em http://localhost:4200
-npm test        # testes unitários com Vitest
-npm run build   # build de produção em dist/
+```text
+.
+├── .github/workflows/
+│   └── deploy-pages.yml          # build e publicação automática
+├── openspec/                     # planejamento e especificações incrementais
+├── public/                       # favicon e recursos estáticos
+└── src/
+    ├── app/
+    │   ├── componentes/          # blocos reutilizáveis da interface
+    │   │   ├── batalha/          # tabuleiros, turnos e resultado
+    │   │   ├── preparacao-frota/ # posicionamento das embarcações
+    │   │   ├── status-frota/     # resumo visual da frota
+    │   │   └── troca-jogador/    # transição da partida local
+    │   ├── dominio/              # regras puras do jogo e seus testes
+    │   ├── modelos/              # contratos de sessão e histórico
+    │   ├── paginas/              # início, preparação, partida e histórico
+    │   ├── servicos/             # estado, sessão e persistência local
+    │   ├── app.config.ts         # provedores e configuração do router
+    │   └── app.routes.ts         # rotas da aplicação
+    └── main.ts                   # bootstrap Angular
 ```
 
-Qualidade de código:
+A separação entre `dominio`, `servicos`, `componentes` e `paginas` mantém as regras de jogo independentes da interface e facilita a evolução posterior para multiplayer online.
+
+## Regras principais
+
+- Cada jogador possui um tabuleiro de 10 linhas, de A a J, e 10 colunas, de 1 a 10.
+- As embarcações ocupam posições consecutivas, horizontal ou verticalmente.
+- Embarcações podem encostar, mas não podem se sobrepor.
+- Uma coordenada só pode receber um ataque uma vez por participante.
+- Cada turno concede um ataque, mesmo em caso de acerto.
+- Uma embarcação é destruída quando todas as suas posições são atingidas.
+- Vence quem destruir toda a frota adversária primeiro.
+
+## Como executar
+
+Pré-requisitos: Node.js 22 ou superior e npm.
 
 ```bash
-npm run lint          # análise estática com ESLint
-npm run format        # formata os arquivos com Prettier
-npm run format:check  # apenas verifica a formatação
+git clone https://github.com/DrElucidator/Battleship.git
+cd Battleship
+npm ci
+npm start
 ```
 
-A aplicação usa Angular 22.2 com componentes standalone e sem Zone.js (zoneless),
-estilização com Tailwind CSS 4 e ícones Lucide.
+Abra `http://localhost:4200` no navegador.
+
+## Qualidade
+
+```bash
+npm test
+npm run lint
+npm run format:check
+npm run build
+```
+
+Os testes cobrem as principais regras do domínio, incluindo coordenadas, frota, posicionamento, ataques e encerramento de partida.
+
+## Deploy
+
+Cada push na branch `main` executa o workflow de publicação no GitHub Pages. O build usa a base `/Battleship/` e rotas com hash para permitir atualizar páginas internas sem retornar 404.
+
+O site publicado está em [drelucidator.github.io/Battleship](https://drelucidator.github.io/Battleship/).
+
+## Próximos passos
+
+A versão 1.0.0 consolida a experiência offline. Evoluções planejadas para uma versão futura incluem:
+
+- Multiplayer online com salas de partida.
+- Identidade leve por apelido, sem exigir cadastro para começar.
+- Persistência compartilhada de partidas e histórico.
+
+## Autor
+
+Desenvolvido por [Alec Luí](https://github.com/DrElucidator) como projeto da Academia do Programador.
